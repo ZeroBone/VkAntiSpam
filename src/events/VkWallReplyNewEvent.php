@@ -29,29 +29,31 @@ class VkWallReplyNewEvent extends VkEvent {
         $commentText = htmlentities(stripslashes(trim((string)$this->object['text'])), ENT_QUOTES, 'utf-8');
         $commentAuthor = (int)$this->object['from_id'];
 
-        foreach ((array)$this->object['attachments'] as $commentAttachment) {
+        if (isset($this->object['attachments'])) {
+            foreach ((array)$this->object['attachments'] as $commentAttachment) {
 
-            switch ($commentAttachment['type']) {
+                switch ($commentAttachment['type']) {
 
-                case 'video':
-                case 'link':
-                case 'photo':
+                    case 'video':
+                    case 'link':
+                    case 'photo':
 
-                    VkUtils::deleteGroupComment($vkGroup->token, $vkGroup->vkId, $commentId);
+                        VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
-                    return;
+                        return;
 
-                default:
-                    break;
+                    default:
+                        break;
 
+
+                }
 
             }
-
         }
 
         if (StringUtils::getStringLength($commentText) > 250) {
 
-            VkUtils::deleteGroupComment($vkGroup->token, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
             return;
 
@@ -61,7 +63,7 @@ class VkWallReplyNewEvent extends VkEvent {
 
             // message from group
 
-            VkUtils::deleteGroupComment($vkGroup->token, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
             return;
 
@@ -69,7 +71,7 @@ class VkWallReplyNewEvent extends VkEvent {
 
         if (AntiSpamSystem::textInvalid($commentText)) {
 
-            VkUtils::deleteGroupComment($vkGroup->token, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
             return;
 
@@ -96,7 +98,7 @@ class VkWallReplyNewEvent extends VkEvent {
 
         if ($spammieness >= 0.75) {
 
-            VkUtils::deleteGroupComment($vkGroup->token, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
             $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
             $query->execute([

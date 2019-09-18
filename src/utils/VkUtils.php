@@ -141,6 +141,8 @@ class VkUtils {
             'comment_id' => $commentId
         ]);
 
+        // return $res;
+
     }
 
 }
