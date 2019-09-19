@@ -33,6 +33,12 @@ class VkWallReplyDeleteEvent extends VkEvent {
         $deleterId = (int)$this->object['deleter_id'];
         // $ownerId = (int)$this->object['owner_id'];
 
+        if ($deleterId === $vkGroup->adminId) {
+            // the response is issued by us
+            // everything that had to be done has already been done
+            return;
+        }
+
         $db = VkAntiSpam::get()->getDatabaseConnection();
 
         $query = $db->prepare('SELECT * FROM `messages` WHERE `type` = 1 AND `vkId` = ? AND `context` = ? LIMIT 1;');

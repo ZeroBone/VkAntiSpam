@@ -12,6 +12,7 @@ $antispam = new VkAntiSpam(
         $_SERVER['VK_GROUP_ID'],
         $_SERVER['VK_SECRET'],
         $_SERVER['VK_TOKEN'],
+        $_SERVER['VK_ADMIN_ID'],
         $_SERVER['VK_ADMIN_TOKEN'],
         $_SERVER['VK_CONFIRMATION_TOKEN']
     ))

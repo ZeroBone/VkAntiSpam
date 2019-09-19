@@ -11,6 +11,8 @@ class VkAntiSpamGroupConfig {
 
     public $token;
 
+    public $adminId;
+
     public $adminToken;
 
     public $confirmationToken;
@@ -20,13 +22,15 @@ class VkAntiSpamGroupConfig {
      * @param $vkId
      * @param $secret
      * @param $token
+     * @param $adminId
      * @param $adminToken
      * @param $confirmationToken
      */
-    public function __construct($vkId, $secret, $token, $adminToken, $confirmationToken) {
+    public function __construct($vkId, $secret, $token, $adminId, $adminToken, $confirmationToken) {
         $this->vkId = $vkId;
         $this->secret = $secret;
         $this->token = $token;
+        $this->adminId = $adminId;
         $this->adminToken = $adminToken;
         $this->confirmationToken = $confirmationToken;
     }
