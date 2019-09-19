@@ -114,7 +114,6 @@ class TextClassifier {
             return TextClassifier::CATEGORY_HAM;
         }
 
-
         $fpSpam = $spamCount / $totalCount;
 
         $fpHam = $hamCount / $totalCount;
@@ -177,7 +176,7 @@ class TextClassifier {
 
     public static function textInvalid($text) {
 
-        if (preg_match('/[^\.\,\-\_\'\"\@\?\!\:\$\+ a-zA-Z0-9А-Яа-я()]/u', $text)) {
+        if (preg_match('/[^\.\,\-\_\'\"\@\?\!\:\$\+ a-zA-Z0-9А-ЯЁа-яё()]/u', $text)) {
             // odd characters
             return true;
         }

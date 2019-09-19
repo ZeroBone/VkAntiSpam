@@ -27,7 +27,7 @@ CREATE TABLE `trainingSet` (
     `category` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
     KEY (`category`)
-);
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `wordFrequency` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -37,4 +37,4 @@ CREATE TABLE `wordFrequency` (
     PRIMARY KEY (`id`),
     KEY (`word`),
     KEY (`category`)
-);
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
