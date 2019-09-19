@@ -7,7 +7,9 @@ use PDO;
 use VkAntiSpam\Config\VkAntiSpamConfig;
 use VkAntiSpam\Config\VkAntiSpamGroupConfig;
 use VkAntiSpam\Event\VkEvent;
+use VkAntiSpam\Event\VkWallReplyEditEvent;
 use VkAntiSpam\Event\VkWallReplyNewEvent;
+use VkAntiSpam\Event\VkWallReplyRestoreEvent;
 
 class VkAntiSpam {
 
@@ -98,6 +100,18 @@ class VkAntiSpam {
                         case 'wall_reply_new':
 
                             $event = new VkWallReplyNewEvent($vkEvent['type'], $vkEvent['object']);
+
+                            break;
+
+                        case 'wall_reply_edit':
+
+                            $event = new VkWallReplyEditEvent($vkEvent['type'], $vkEvent['object']);
+
+                            break;
+
+                        case 'wall_reply_restore':
+
+                            $event = new VkWallReplyRestoreEvent($vkEvent['type'], $vkEvent['object']);
 
                             break;
 

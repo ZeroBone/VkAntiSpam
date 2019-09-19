@@ -4,7 +4,7 @@ namespace VkAntiSpam\Event;
 
 use VkAntiSpam\System\CommentChangeHandler;
 
-class VkWallReplyNewEvent extends VkEvent {
+class VkWallReplyEditEvent extends VkEvent {
 
     public function __construct($type, $object) {
 

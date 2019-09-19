@@ -1,0 +1,137 @@
+<?php
+
+namespace VkAntiSpam\System;
+
+use VkAntiSpam\Utils\StringUtils;
+use VkAntiSpam\Utils\VkUtils;
+use VkAntiSpam\VkAntiSpam;
+
+class CommentChangeHandler {
+
+    private $object;
+
+    public function __construct($commentObject) {
+
+        $this->object = $commentObject;
+
+    }
+
+    public function handle($vkGroup) {
+
+        $commentId = (int)$this->object['id'];
+        $commentText = stripslashes(trim((string)$this->object['text']));
+        $commentAuthor = (int)$this->object['from_id'];
+
+        if ($commentAuthor === -$vkGroup->vkId) {
+            // don't check messages from the group
+            // assume it's ham
+
+            if (StringUtils::getStringLength($commentText) > 250 || $commentText === '') {
+                // empty comment
+                return;
+            }
+
+            $antispam = new TextClassifier();
+
+            $antispam->learn($commentText, TextClassifier::CATEGORY_HAM);
+
+            return;
+
+        }
+
+        if (isset($this->object['attachments'])) {
+            foreach ((array)$this->object['attachments'] as $commentAttachment) {
+
+                switch ($commentAttachment['type']) {
+
+                    case 'video':
+                    case 'link':
+                    case 'photo':
+
+                        VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+                        return;
+
+                    default:
+                        break;
+
+
+                }
+
+            }
+        }
+
+        if (StringUtils::getStringLength($commentText) > 250) {
+
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+            return;
+
+        }
+
+        if ($commentAuthor < 0) {
+
+            // message from group
+
+            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+            return;
+
+        }
+
+        if (StringUtils::getStringLength($commentText) === 0) {
+
+            // there is no point in analyzing empty text
+
+            return;
+
+        }
+
+        $antispam = new TextClassifier();
+
+        $category = $antispam->classify($commentText);
+
+        switch ($category) {
+
+            case TextClassifier::CATEGORY_INVALID:
+
+                VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+                return;
+
+            case TextClassifier::CATEGORY_HAM:
+            case TextClassifier::CATEGORY_SPAM:
+
+                VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+                $db = VkAntiSpam::get()->getDatabaseConnection();
+                $query = $db->prepare('INSERT INTO `messages` (`type`, `vkId`, `author`, `message`, `date`, `replyToUser`, `replyToMessage`, `context`) VALUES (?,?,?,?,?,?,?,?);');
+                $query->execute([
+                    1, // type
+                    $commentId, // vkId
+                    $commentAuthor, // author
+                    $commentText, // message
+                    time(), // date
+                    isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
+                    isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
+                    $this->object['post_id'] // context
+                ]);
+
+                $messageId = (int)$db->lastInsertId();
+
+                $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
+                $query->execute([
+                    $messageId,
+                    time()
+                ]);
+
+                break;
+
+            default:
+                break;
+
+        }
+
+    }
+
+}
