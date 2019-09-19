@@ -102,8 +102,6 @@ class CommentChangeHandler {
             case TextClassifier::CATEGORY_HAM:
             case TextClassifier::CATEGORY_SPAM:
 
-                VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
-
                 $db = VkAntiSpam::get()->getDatabaseConnection();
                 $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `date`, `replyToUser`, `replyToMessage`, `context`) VALUES (?,?,?,?,?,?,?,?,?);');
                 $query->execute([
@@ -118,13 +116,19 @@ class CommentChangeHandler {
                     (int)$this->object['post_id'] // context
                 ]);
 
-                $messageId = (int)$db->lastInsertId();
+                if ($category === TextClassifier::CATEGORY_SPAM) {
 
-                $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
-                $query->execute([
-                    $messageId,
-                    time()
-                ]);
+                    VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+                    $messageId = (int)$db->lastInsertId();
+
+                    $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
+                    $query->execute([
+                        $messageId,
+                        time()
+                    ]);
+
+                }
 
                 break;
 
