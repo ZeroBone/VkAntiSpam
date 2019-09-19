@@ -105,8 +105,9 @@ class CommentChangeHandler {
                 VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
                 $db = VkAntiSpam::get()->getDatabaseConnection();
-                $query = $db->prepare('INSERT INTO `messages` (`type`, `vkId`, `author`, `message`, `date`, `replyToUser`, `replyToMessage`, `context`) VALUES (?,?,?,?,?,?,?,?);');
+                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `date`, `replyToUser`, `replyToMessage`, `context`) VALUES (?,?,?,?,?,?,?,?,?);');
                 $query->execute([
+                    $vkGroup->vkId, // groupId
                     1, // type
                     $commentId, // vkId
                     $commentAuthor, // author
@@ -114,7 +115,7 @@ class CommentChangeHandler {
                     time(), // date
                     isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
                     isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
-                    $this->object['post_id'] // context
+                    (int)$this->object['post_id'] // context
                 ]);
 
                 $messageId = (int)$db->lastInsertId();
