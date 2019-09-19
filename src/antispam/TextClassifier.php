@@ -21,6 +21,7 @@ class TextClassifier {
     private function tokenize($text) {
 
         $filteredWords = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто'];
+        // TODO: get filtered word from config
 
         $text = preg_replace('/[\.\,\-\_\'\"\@\?\!\:\$\+0-9]+/', '', $text);
         $text = mb_strtolower($text, 'utf-8');

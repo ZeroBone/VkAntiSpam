@@ -21,14 +21,19 @@ CREATE TABLE `bans` (
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `trainingSet` (
-    S_NO integer primary key auto_increment,
-    document text,
-    category varchar(255)
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `document` TEXT NOT NULL,
+    `category` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY (`category`)
 );
 
 CREATE TABLE `wordFrequency` (
-    S_NO integer primary key auto_increment,
-    word varchar(255),
-    count integer,
-    category varchar(255)
- );
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `word` VARCHAR(255),
+    `count` INT UNSIGNED NOT NULL,
+    `category` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY (`word`),
+    KEY (`category`)
+);
