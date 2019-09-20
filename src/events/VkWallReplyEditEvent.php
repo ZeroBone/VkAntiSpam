@@ -14,6 +14,8 @@ class VkWallReplyEditEvent extends VkEvent {
 
     public function handle($vkGroup) {
 
+        // TODO: delete old comment from the database
+
         $handler = new CommentChangeHandler($this->object);
 
         $handler->handle($vkGroup);

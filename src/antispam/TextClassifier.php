@@ -23,7 +23,7 @@ class TextClassifier {
         $filteredWords = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто'];
         // TODO: get filtered word from config
 
-        $text = preg_replace('/[\.\,\-\_\'\"\@\?\!\:\$\+0-9()]+/', '', $text);
+        $text = preg_replace('/[^a-zA-Z0-9А-ЯЁа-яё ]+/u', '', $text);
         $text = mb_strtolower($text, 'utf-8');
 
         $keywords = [];
