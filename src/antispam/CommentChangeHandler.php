@@ -44,11 +44,19 @@ class CommentChangeHandler {
 
                 switch ($commentAttachment['type']) {
 
-                    case 'video':
                     case 'link':
-                    case 'photo':
 
                         VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+
+                        return;
+
+                    case 'video':
+                    case 'photo':
+                    case 'posted_photo':
+                    case 'photos_list':
+                    case 'page':
+
+                        // VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
 
                         return;
 

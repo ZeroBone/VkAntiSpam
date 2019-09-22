@@ -114,9 +114,18 @@ class TextClassifier {
             return TextClassifier::CATEGORY_HAM;
         }
 
-        $fpSpam = $spamCount / $totalCount;
+        if ($spamCount > max($hamCount - 1, 0)) {
+            $spamCount = max($hamCount - 1, 0);
+        }
 
-        $fpHam = $hamCount / $totalCount;
+        if ($spamCount === 0 || $hamCount === 0) {
+            // not enouph information
+            return TextClassifier::CATEGORY_HAM;
+        }
+
+        $spamChance = $spamCount / $totalCount;
+
+        $hamChance = $hamCount / $totalCount;
 
         // get the number of distinct word
         // it is required by the laplace smoothing algo
@@ -124,7 +133,7 @@ class TextClassifier {
         $query = $db->query('SELECT COUNT(*) AS `count` FROM `wordFrequency`;');
         $distinctWords = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 
-        $spammieness = log($fpSpam);
+        $spammieness = log($spamChance);
 
         $countLookupQuery = $db->prepare('SELECT `count` FROM `wordFrequency` WHERE `word` = ? AND `category` = ?;');
 
@@ -141,7 +150,7 @@ class TextClassifier {
 
         }
 
-        $hammieness = log($fpHam);
+        $hammieness = log($hamChance);
 
         foreach ($keywords as $keyword) {
 
@@ -156,9 +165,11 @@ class TextClassifier {
 
         }
 
-        $category = ($hammieness >= $spammieness) ? TextClassifier::CATEGORY_HAM : TextClassifier::CATEGORY_SPAM;
+        if ($hammieness >= $spammieness) {
+            return TextClassifier::CATEGORY_HAM;
+        }
 
-        return $category;
+        return TextClassifier::CATEGORY_SPAM;
 
     }
 
