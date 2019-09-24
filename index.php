@@ -1,9 +1,18 @@
 <?php
 
 use VkAntiSpam\System\TextClassifier;
+use VkAntiSpam\Utils\Utils;
 use VkAntiSpam\VkAntiSpam;
 
 require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
+
+VkAntiSpam::web();
+
+if (!VkAntiSpam::get()->account->loggedIn()) {
+    Utils::redirect('/account/login');
+    exit(0);
+}
+
 require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 ?>

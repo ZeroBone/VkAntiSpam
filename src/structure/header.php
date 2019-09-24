@@ -1,15 +1,15 @@
 <?php
 
 use VkAntiSpam\Account\Account;
-use VkAntiSpam\Utils\Utils;use VkAntiSpam\VkAntiSpam;
+use VkAntiSpam\VkAntiSpam;
 
-VkAntiSpam::web();
+if (!defined('SECURITY_CANARY')) {
+    exit(0);
+}
 
 if (!VkAntiSpam::get()->account->loggedIn()) {
-
-    Utils::redirect('/account/login');
-    exit(0);
-
+    /** @noinspection PhpUnhandledExceptionInspection */
+    throw new Exception('The user should be logged in.');
 }
 
 ?><!DOCTYPE html>
@@ -27,8 +27,8 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
     <meta name="author" content="Alexander Mayorov">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
-    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <title>VkAntiSpam - система фильтрации спама</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
@@ -129,10 +129,15 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-calendar"></i> Антиспам</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">
                                     <a href="/antispam/test" class="dropdown-item">Проверка сообщений</a>
-                                    <!--<a href="./icons.html" class="dropdown-item ">Icons</a>
-                                    <a href="./store.html" class="dropdown-item ">Store</a>
-                                    <a href="./blog.html" class="dropdown-item ">Blog</a>
-                                    <a href="./carousel.html" class="dropdown-item ">Carousel</a>-->
+                                    <?php
+
+                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_MODERATOR)) {
+                                        ?>
+                                        <a href="/antispam/train" class="dropdown-item">Обучение</a>
+                                        <?php
+                                    }
+
+                                    ?>
                                 </div>
                             </li>
                             <li class="nav-item">

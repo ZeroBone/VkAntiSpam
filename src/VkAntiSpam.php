@@ -2,7 +2,7 @@
 
 namespace VkAntiSpam;
 
-use mysql_xdevapi\Exception;
+use \Exception;
 use PDO;
 use VkAntiSpam\Account\Account;
 use VkAntiSpam\Config\VkAntiSpamConfig;
@@ -38,6 +38,7 @@ class VkAntiSpam {
     /**
      * VkAntiSpam constructor.
      * @param $config VkAntiSpamConfig
+     * @throws Exception
      */
     private function __construct($config) {
 
