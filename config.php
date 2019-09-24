@@ -1,5 +1,6 @@
 <?php
 
+use VkAntiSpam\Config\AccountConfig;
 use VkAntiSpam\Config\VkAntiSpamConfig;
 use VkAntiSpam\Config\VkAntiSpamGroupConfig;
 
@@ -20,4 +21,7 @@ return (new VkAntiSpamConfig())
     ))
     ->dbName('antispam')
     ->dbUser('root')
-    ->dbPassword('');
+    ->dbPassword('')
+    ->accountConfig(new AccountConfig('<128-byte secret key here>'))
+    ->setRecaptchaPublicKey('<public key>')
+    ->setRecaptchaPrivateKey('<secret key>');

@@ -96,6 +96,10 @@ class TextClassifier {
 
     private function analyze($keywords) {
 
+        if (count($keywords) === 0) {
+            return TextClassifier::CATEGORY_HAM;
+        }
+
         $db = VkAntiSpam::get()->getDatabaseConnection();
 
         $query = $db->prepare('SELECT COUNT(*) AS `count` FROM `trainingSet` WHERE `category` = ?;');

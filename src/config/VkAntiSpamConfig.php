@@ -17,6 +17,15 @@ class VkAntiSpamConfig {
 
     public $dbPassword = '';
 
+    /**
+     * @var AccountConfig
+     */
+    public $account;
+
+    public $recaptchaPublicKey;
+
+    public $recaptchaPrivateKey;
+
     public function __construct() {}
 
     /**
@@ -73,6 +82,33 @@ class VkAntiSpamConfig {
      */
     public function dbPassword($dbPassword) {
         $this->dbPassword = $dbPassword;
+        return $this;
+    }
+
+    /**
+     * @param AccountConfig $account
+     * @return VkAntiSpamConfig
+     */
+    public function accountConfig(AccountConfig $account): VkAntiSpamConfig {
+        $this->account = $account;
+        return $this;
+    }
+
+    /**
+     * @param mixed $recaptchaPublicKey
+     * @return VkAntiSpamConfig
+     */
+    public function setRecaptchaPublicKey($recaptchaPublicKey) {
+        $this->recaptchaPublicKey = $recaptchaPublicKey;
+        return $this;
+    }
+
+    /**
+     * @param mixed $recaptchaPrivateKey
+     * @return VkAntiSpamConfig
+     */
+    public function setRecaptchaPrivateKey($recaptchaPrivateKey) {
+        $this->recaptchaPrivateKey = $recaptchaPrivateKey;
         return $this;
     }
 

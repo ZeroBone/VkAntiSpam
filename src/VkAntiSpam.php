@@ -4,6 +4,7 @@ namespace VkAntiSpam;
 
 use mysql_xdevapi\Exception;
 use PDO;
+use VkAntiSpam\Account\Account;
 use VkAntiSpam\Config\VkAntiSpamConfig;
 use VkAntiSpam\Config\VkAntiSpamGroupConfig;
 use VkAntiSpam\Event\VkEvent;
@@ -30,10 +31,15 @@ class VkAntiSpam {
     private $db = null;
 
     /**
+     * @var Account
+     */
+    public $account = null;
+
+    /**
      * VkAntiSpam constructor.
      * @param $config VkAntiSpamConfig
      */
-    public function __construct($config) {
+    private function __construct($config) {
 
         if (VkAntiSpam::$instance !== null) {
             throw new Exception('Multiple instances violate singleton.');
@@ -176,6 +182,24 @@ class VkAntiSpam {
 
     public static function get() {
         return VkAntiSpam::$instance;
+    }
+
+    public static function vkCallback() {
+
+        return new self(require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php');
+
+    }
+
+    public static function web() {
+
+        define('SECURITY_CANARY', true);
+
+        $instance = new self(require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php');
+
+        $instance->account = new Account();
+
+        return $instance;
+
     }
 
 }

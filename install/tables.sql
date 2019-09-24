@@ -38,3 +38,20 @@ CREATE TABLE `wordFrequency` (
     KEY (`word`),
     KEY (`category`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `users` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(16) NOT NULL,
+    `email` VARCHAR(40) NOT NULL,
+    `password` CHAR(128) NOT NULL,
+    `salt` CHAR(64),
+    `ip` VARCHAR(39) NOT NULL,
+    `ipLastLogin` VARCHAR(39) NOT NULL,
+    `dateRegister` BIGINT UNSIGNED NOT NULL,
+    `dateLastLogin` BIGINT UNSIGNED NOT NULL,
+    `role` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY (`name`),
+    KEY (`ip`),
+    KEY (`email`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
