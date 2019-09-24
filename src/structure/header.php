@@ -66,7 +66,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                         </div>
                         <div class="dropdown">
                             <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
-                                <!--<span class="avatar" style="background-image: url(./demo/faces/female/25.jpg)"></span>-->
+                                <span class="avatar avatar-purple"><?= strtoupper(substr(VkAntiSpam::get()->account->getName(), 0, 2)); ?></span>
                                 <span class="ml-2 d-none d-lg-block">
                                     <?php
 
@@ -123,7 +123,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                     <div class="col-lg order-lg-first">
                         <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                             <li class="nav-item">
-                                <a href="/" class="nav-link"><i class="fe fe-home"></i> Главная</a>
+                                <a href="/" class="nav-link"><i class="fe fe-home"></i> Панель управления</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-calendar"></i> Антиспам</a>

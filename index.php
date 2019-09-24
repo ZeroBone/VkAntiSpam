@@ -1,7 +1,5 @@
 <?php
 
-use VkAntiSpam\System\TextClassifier;
-
 require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
