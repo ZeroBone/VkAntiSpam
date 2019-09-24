@@ -11,7 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 $vas = VkAntiSpam::web();
 
 if ($vas->account->loggedIn()) {
-    header('Location: /account/cabinet');
+    Utils::redirect('/account/cabinet');
     exit(0);
 }
 
@@ -66,7 +66,7 @@ if (
 
 				setcookie('zl', $jwt, time() + (86400 * 30), '/', null);
 
-                header('Location: /account/cabinet');
+                Utils::redirect('/account/cabinet');
 
                 exit(0);
 			}

@@ -192,8 +192,6 @@ class VkAntiSpam {
 
     public static function web() {
 
-        define('SECURITY_CANARY', true);
-
         $instance = new self(require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php');
 
         $instance->account = new Account();

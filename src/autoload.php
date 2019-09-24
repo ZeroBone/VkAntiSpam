@@ -1,5 +1,7 @@
 <?php
 
+define('SECURITY_CANARY', true);
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/VkAntiSpam.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/account/Account.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/CommentChangeHandler.php';

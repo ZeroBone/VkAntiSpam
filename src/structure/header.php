@@ -1,11 +1,19 @@
 <?php
 
-define('SECURITY_CANARY', true);
+use VkAntiSpam\Account\Account;
+use VkAntiSpam\Utils\Utils;use VkAntiSpam\VkAntiSpam;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
+VkAntiSpam::web();
 
-?><!doctype html>
-<html lang="en" dir="ltr">
+if (!VkAntiSpam::get()->account->loggedIn()) {
+
+    Utils::redirect('/account/login');
+    exit(0);
+
+}
+
+?><!DOCTYPE html>
+<html lang="ru" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -18,28 +26,29 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
+    <meta name="author" content="Alexander Mayorov">
     <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
-    <title>Homepage - tabler.github.io - a responsive, flat and full featured admin template</title>
+    <title>VkAntiSpam - система фильтрации спама</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
-    <script src="./assets/js/require.min.js"></script>
+    <script src="/assets/js/require.min.js"></script>
     <script>
         requirejs.config({
-            baseUrl: '.'
+            baseUrl: "/"
         });
     </script>
     <!-- Dashboard Core -->
-    <link href="./assets/css/dashboard.css" rel="stylesheet" />
-    <script src="./assets/js/dashboard.js"></script>
+    <link href="/assets/css/dashboard.css" rel="stylesheet" />
+    <script src="/assets/js/dashboard.js"></script>
     <!-- c3.js Charts Plugin -->
-    <link href="./assets/plugins/charts-c3/plugin.css" rel="stylesheet" />
-    <script src="./assets/plugins/charts-c3/plugin.js"></script>
+    <link href="/assets/plugins/charts-c3/plugin.css" rel="stylesheet" />
+    <script src="/assets/plugins/charts-c3/plugin.js"></script>
     <!-- Google Maps Plugin -->
-    <link href="./assets/plugins/maps-google/plugin.css" rel="stylesheet" />
-    <script src="./assets/plugins/maps-google/plugin.js"></script>
+    <link href="/assets/plugins/maps-google/plugin.css" rel="stylesheet" />
+    <script src="/assets/plugins/maps-google/plugin.js"></script>
     <!-- Input Mask Plugin -->
-    <script src="./assets/plugins/input-mask/plugin.js"></script>
+    <script src="/assets/plugins/input-mask/plugin.js"></script>
 </head>
 <body class="">
 <div class="page">
@@ -47,72 +56,57 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
         <div class="header py-4">
             <div class="container">
                 <div class="d-flex">
-                    <a class="header-brand" href="./index.html">
-                        <img src="./demo/brand/tabler.svg" class="header-brand-img" alt="tabler logo">
+                    <a class="header-brand" href="/">
+                        VkAntiSpam
+                        <!--<img src="./demo/brand/tabler.svg" class="header-brand-img" alt="tabler logo">-->
                     </a>
                     <div class="d-flex order-lg-2 ml-auto">
                         <div class="nav-item d-none d-md-flex">
-                            <a href="https://github.com/tabler/tabler" class="btn btn-sm btn-outline-primary" target="_blank">Source code</a>
-                        </div>
-                        <div class="dropdown d-none d-md-flex">
-                            <a class="nav-link icon" data-toggle="dropdown">
-                                <i class="fe fe-bell"></i>
-                                <span class="nav-unread"></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                <a href="#" class="dropdown-item d-flex">
-                                    <span class="avatar mr-3 align-self-center" style="background-image: url(demo/faces/male/41.jpg)"></span>
-                                    <div>
-                                        <strong>Nathan</strong> pushed new commit: Fix page load performance issue.
-                                        <div class="small text-muted">10 minutes ago</div>
-                                    </div>
-                                </a>
-                                <a href="#" class="dropdown-item d-flex">
-                                    <span class="avatar mr-3 align-self-center" style="background-image: url(demo/faces/female/1.jpg)"></span>
-                                    <div>
-                                        <strong>Alice</strong> started new task: Tabler UI design.
-                                        <div class="small text-muted">1 hour ago</div>
-                                    </div>
-                                </a>
-                                <a href="#" class="dropdown-item d-flex">
-                                    <span class="avatar mr-3 align-self-center" style="background-image: url(demo/faces/female/18.jpg)"></span>
-                                    <div>
-                                        <strong>Rose</strong> deployed new version of NodeJS REST Api V3
-                                        <div class="small text-muted">2 hours ago</div>
-                                    </div>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item text-center text-muted-dark">Mark all as read</a>
-                            </div>
+                            <a href="https://github.com/ZeroBone" class="btn btn-sm btn-outline-primary" target="_blank">GitHub</a>
                         </div>
                         <div class="dropdown">
                             <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
-                                <span class="avatar" style="background-image: url(./demo/faces/female/25.jpg)"></span>
+                                <!--<span class="avatar" style="background-image: url(./demo/faces/female/25.jpg)"></span>-->
                                 <span class="ml-2 d-none d-lg-block">
-                                  <span class="text-default">Jane Pearson</span>
-                                  <small class="text-muted d-block mt-1">Administrator</small>
+                                    <?php
+
+                                    $role = '';
+
+                                    switch (VkAntiSpam::get()->account->getRole()) {
+
+                                        case Account::ROLE_VISITOR:
+                                            $role = 'Наблюдатель';
+                                            break;
+
+                                        case Account::ROLE_MODERATOR:
+                                            $role = 'Модератор';
+                                            break;
+
+                                        case Account::ROLE_EDITOR:
+                                            $role = 'Редактор';
+                                            break;
+
+                                        case Account::ROLE_ADMIN:
+                                            $role = 'Администратор';
+                                            break;
+
+                                        default:
+                                            break;
+
+                                    }
+
+                                    ?>
+                                    <span class="text-default"><?= VkAntiSpam::get()->account->getName() ?></span>
+                                    <small class="text-muted d-block mt-1"><?= $role ?></small>
                                 </span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                <a class="dropdown-item" href="#">
-                                    <i class="dropdown-icon fe fe-user"></i> Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="dropdown-icon fe fe-settings"></i> Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <span class="float-right"><span class="badge badge-primary">6</span></span>
-                                    <i class="dropdown-icon fe fe-mail"></i> Inbox
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="dropdown-icon fe fe-send"></i> Message
+                                <a class="dropdown-item" href="/account/cabinet">
+                                    <i class="dropdown-icon fe fe-user"></i> Личный кабинет
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">
-                                    <i class="dropdown-icon fe fe-help-circle"></i> Need help?
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="dropdown-icon fe fe-log-out"></i> Sign out
+                                <a class="dropdown-item" href="/account/logout">
+                                    <i class="dropdown-icon fe fe-log-out"></i> Выйти
                                 </a>
                             </div>
                         </div>
@@ -129,24 +123,38 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
                     <div class="col-lg order-lg-first">
                         <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                             <li class="nav-item">
-                                <a href="./index.html" class="nav-link active"><i class="fe fe-home"></i> Home</a>
+                                <a href="/" class="nav-link"><i class="fe fe-home"></i> Главная</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-calendar"></i> Антиспам</a>
+                                <div class="dropdown-menu dropdown-menu-arrow">
+                                    <a href="/antispam/test" class="dropdown-item">Проверка сообщений</a>
+                                    <!--<a href="./icons.html" class="dropdown-item ">Icons</a>
+                                    <a href="./store.html" class="dropdown-item ">Store</a>
+                                    <a href="./blog.html" class="dropdown-item ">Blog</a>
+                                    <a href="./carousel.html" class="dropdown-item ">Carousel</a>-->
+                                </div>
                             </li>
                             <li class="nav-item">
+                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Настройки</a>
+                                <div class="dropdown-menu dropdown-menu-arrow">
+                                    <?php
+
+                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {
+                                        ?>
+                                        <a href="/account/register" class="dropdown-item">Регистрация пользователей</a>
+                                        <?php
+                                    }
+
+                                    ?>
+                                </div>
+                            </li>
+                            <!--<li class="nav-item">
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-box"></i> Interface</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">
                                     <a href="./cards.html" class="dropdown-item ">Cards design</a>
                                     <a href="./charts.html" class="dropdown-item ">Charts</a>
                                     <a href="./pricing-cards.html" class="dropdown-item ">Pricing cards</a>
-                                </div>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-calendar"></i> Components</a>
-                                <div class="dropdown-menu dropdown-menu-arrow">
-                                    <a href="./maps.html" class="dropdown-item ">Maps</a>
-                                    <a href="./icons.html" class="dropdown-item ">Icons</a>
-                                    <a href="./store.html" class="dropdown-item ">Store</a>
-                                    <a href="./blog.html" class="dropdown-item ">Blog</a>
-                                    <a href="./carousel.html" class="dropdown-item ">Carousel</a>
                                 </div>
                             </li>
                             <li class="nav-item dropdown">
@@ -163,7 +171,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
                                     <a href="./500.html" class="dropdown-item ">500 error</a>
                                     <a href="./503.html" class="dropdown-item ">503 error</a>
                                     <a href="./email.html" class="dropdown-item ">Email</a>
-                                    <a href="./empty.html" class="dropdown-item ">Empty page</a>
+                                    <a href="./empty.html" class="dropdown-item active">Empty page</a>
                                     <a href="./rtl.html" class="dropdown-item ">RTL mode</a>
                                 </div>
                             </li>
@@ -175,16 +183,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
                             </li>
                             <li class="nav-item">
                                 <a href="./docs/index.html" class="nav-link"><i class="fe fe-file-text"></i> Documentation</a>
-                            </li>
+                            </li>-->
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
         <div class="my-3 my-md-5">
-            <div class="container">
-                <div class="page-header">
-                    <h1 class="page-title">
-                        Dashboard
-                    </h1>
-                </div>

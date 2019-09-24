@@ -3,14 +3,22 @@
 namespace VkAntiSpam\Account;
 
 
+use mysql_xdevapi\Exception;
 use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\VkAntiSpam;
 
 class Account {
 
     const NAME_MAX_LENGTH = 16;
+    const NAME_MIN_LENGTH = 3;
+    const PASSWORD_MIN_LENGTH = 12;
     const PASSWORD_MAX_LENGTH = 50;
     const EMAIL_MAX_LENGTH = 40;
+
+    const ROLE_VISITOR = 100;
+    const ROLE_MODERATOR = 200;
+    const ROLE_EDITOR = 300;
+    const ROLE_ADMIN = 400;
 
     private $checked = false;
 
@@ -42,6 +50,7 @@ class Account {
         );
 
         $this->checked = true;
+
         $this->loggedIn = hash_equals($realSignature, $userSignature);
 
         if ($this->loggedIn) {
@@ -49,6 +58,40 @@ class Account {
         }
 
         return $this->loggedIn;
+
+    }
+
+    public function getRole() {
+
+        if (!$this->loggedIn) {
+            throw new Exception('getRole() called before authorization check');
+        }
+
+        return (int)$this->tokenPayload['role'];
+
+    }
+
+    public function getName() {
+
+        if (!$this->loggedIn) {
+            throw new Exception('getName() called before authorization check');
+        }
+
+        return $this->tokenPayload['name'];
+
+    }
+
+    public function isRole($role) {
+
+        if (!$this->loggedIn) {
+            throw new Exception('isRole() called before authorization check');
+        }
+
+        if (!isset($this->tokenPayload['role'])) {
+            return false;
+        }
+
+        return (int)$this->tokenPayload['role'] >= $role;
 
     }
 
