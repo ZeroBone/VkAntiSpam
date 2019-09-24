@@ -62,7 +62,7 @@ class TextClassifier {
 
         $keywords = $this->tokenize($text);
 
-        $presenceCheckQuery = $db->prepare('SELECT COUNT(*) AS `total` FROM `wordFrequency` WHERE `word` = ? and `category` = ?;');
+        $presenceCheckQuery = $db->prepare('SELECT COUNT(*) AS `total` FROM `wordFrequency` WHERE `word` = ? AND `category` = ?;');
 
         $insertQuery = $db->prepare('INSERT INTO `wordFrequency` (`word`, `category`, `count`) VALUES (?, ?, 1);');
 

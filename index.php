@@ -1,5 +1,8 @@
 <?php
 
+use VkAntiSpam\System\TextClassifier;
+use VkAntiSpam\VkAntiSpam;
+
 require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
@@ -11,75 +14,88 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
             </h1>
         </div>
         <div class="row row-cards">
+            <?php
+
+            $db = VkAntiSpam::get()->getDatabaseConnection();
+
+            $query = $db->prepare('
+SELECT COUNT(*) AS `result` FROM `messages` WHERE `date` > ?
+UNION
+SELECT COUNT(*) AS `result` FROM `bans` WHERE `date` > ?
+UNION
+SELECT COUNT(*) AS `result` FROM `trainingSet`
+UNION
+SELECT COUNT(*) AS `result` FROM `trainingSet` WHERE `category` = ?
+UNION
+SELECT COUNT(*) AS `result` FROM `wordFrequency`
+UNION
+SELECT COUNT(*) AS `result` FROM `users`;
+');
+
+            $query->execute([
+                time() - 86400,
+                time() - 86400,
+                TextClassifier::CATEGORY_HAM
+            ]);
+
+            $messagesToday = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            $bansToday = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            $totalTrained = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            $hamTrained = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            $wordsCount = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            $usersCount = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+
+            ?>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-green">
-                            6%
-                            <i class="fe fe-chevron-up"></i>
-                        </div>
-                        <div class="h1 m-0">43</div>
-                        <div class="text-muted mb-4">New Tickets</div>
+                        <div class="h1 m-0"><?= number_format($messagesToday, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Не-спам сообщений за последние сутки</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-red">
-                            -3%
-                            <i class="fe fe-chevron-down"></i>
-                        </div>
-                        <div class="h1 m-0">17</div>
-                        <div class="text-muted mb-4">Closed Today</div>
+                        <div class="h1 m-0"><?= number_format($bansToday, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Блокировок за последние сутки</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-green">
-                            9%
-                            <i class="fe fe-chevron-up"></i>
-                        </div>
-                        <div class="h1 m-0">7</div>
-                        <div class="text-muted mb-4">New Replies</div>
+                        <div class="h1 m-0"><?= number_format($totalTrained - $hamTrained, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Спама обучено</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-green">
-                            3%
-                            <i class="fe fe-chevron-up"></i>
-                        </div>
-                        <div class="h1 m-0">27.3K</div>
-                        <div class="text-muted mb-4">Followers</div>
+                        <div class="h1 m-0"><?= number_format($hamTrained, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Не-спама обучено</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-red">
-                            -2%
-                            <i class="fe fe-chevron-down"></i>
-                        </div>
-                        <div class="h1 m-0">$95</div>
-                        <div class="text-muted mb-4">Daily Earnings</div>
+                        <div class="h1 m-0"><?= number_format($wordsCount, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Слов проанализировано</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="text-right text-red">
-                            -1%
-                            <i class="fe fe-chevron-down"></i>
-                        </div>
-                        <div class="h1 m-0">621</div>
-                        <div class="text-muted mb-4">Products</div>
+                        <div class="h1 m-0"><?= number_format($usersCount, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Пользователей</div>
                     </div>
                 </div>
             </div>

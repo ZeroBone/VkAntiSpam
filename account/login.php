@@ -61,7 +61,8 @@ if (
 
 				$jwt = Account::generateToken(json_encode([
                     'id' => $userId,
-                    'name' => $result['name']
+                    'name' => $result['name'],
+                    'role' => (int)$result['role']
                 ]));
 
 				setcookie('zl', $jwt, time() + (86400 * 30), '/', null);
