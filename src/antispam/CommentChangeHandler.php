@@ -22,6 +22,9 @@ class CommentChangeHandler {
         $commentText = stripslashes(trim((string)$this->object['text']));
         $commentAuthor = (int)$this->object['from_id'];
 
+        // detect reply syntax
+        $commentText = preg_replace('/\[(id)(\d+)\|([^\]]+)\]+/u', '$3', $commentText);
+
         if ($commentAuthor === -$vkGroup->vkId) {
             // don't check messages from the group
             // assume it's ham

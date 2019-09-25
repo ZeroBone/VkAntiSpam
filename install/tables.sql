@@ -63,3 +63,10 @@ CREATE TABLE `settings` (
     `value` TEXT NOT NULL,
     PRIMARY KEY (`name`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `messageWhitelist` (
+    `groupId` BIGINT NOT NULL,
+    `vkId` BIGINT NOT NULL, -- user or group id
+    KEY (`groupId`),
+    KEY (`vkId`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
