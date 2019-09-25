@@ -59,6 +59,7 @@ CREATE TABLE `users` (
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `settings` (
+    `groupId` BIGINT NOT NULL,
     `name` VARCHAR(16) NOT NULL,
     `value` TEXT NOT NULL,
     PRIMARY KEY (`name`)

@@ -60,7 +60,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                         </label>
                                     </td>
                                     <td><?= $currentRow['id']; ?></td>
-                                    <td class="d-none d-sm-table-cell"><?= date('d.m.Y', (int)$currentRow['date']); ?></td>
+                                    <td class="d-none d-sm-table-cell"><?= date('d.m.Y H:i:s', (int)$currentRow['date']); ?></td>
                                     <td><?= StringUtils::escapeHTML($currentRow['message']); ?></td>
                                     <td class="d-none d-md-table-cell">
                                         <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['context']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Стена</a>
