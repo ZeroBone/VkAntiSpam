@@ -114,7 +114,7 @@ SELECT COUNT(*) AS `result` FROM `users`;
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Последние обработанные комментарии</h3>
+                        <h3 class="card-title">Последние обработанные сообщения</h3>
                     </div>
                     <div id="chart-comments-processed" style="height: 15rem; max-height: 220px; position: relative;" class="c3"></div>
                     <div class="table-responsive">
@@ -195,7 +195,7 @@ SELECT COUNT(*) AS `result` FROM `users`;
                                     },
                                     names: {
                                         // name of each serie
-                                        'comments': "Количество комментариев",
+                                        'comments': "Количество сообщений",
                                         // 'comments_time': "Время",
                                     }
                                 },
