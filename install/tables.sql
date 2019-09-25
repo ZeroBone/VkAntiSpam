@@ -9,6 +9,7 @@ CREATE TABLE `messages` (
     `replyToUser` BIGINT NOT NULL, -- vk id of the user this message was replied to, 0 if not replied,
     `replyToMessage` BIGINT NOT NULL, -- vk id of the message, 0 if unknown
     `context` BIGINT NOT NULL, -- if type == 1, this is the vk post id
+    `category` INT UNSIGNED NOT NULL, -- 0 if unknown (probably ham), 1 if we are 100% sure it is ham
     PRIMARY KEY (`id`),
     KEY (`type`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;

@@ -59,9 +59,13 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                         </label>
                                     </td>
                                     <td><?= $currentRow['id']; ?></td>
+                                    <td class="d-none d-sm-table-cell"><?= date('d.m.Y', (int)$currentRow['date']); ?></td>
                                     <td><?= $currentRow['message']; ?></td>
-                                    <td class="d-none d-sm-table-cell">February 10, 1994</td>
-                                    <td class="d-none d-md-table-cell">$1616.70</td>
+                                    <td class="d-none d-md-table-cell">
+                                        <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['context']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Стена</a>
+                                        <a class="btn btn-danger btn-sm" href="javascript:void(0)">Это спам</a>
+                                        <a class="btn btn-success btn-sm" href="javascript:void(0)">Это не спам</a>
+                                    </td>
                                 </tr>
                                 <?php
 
@@ -83,10 +87,10 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <thead>
                             <tr>
                                 <th class="w-1"></th>
-                                <th class="w-1"></th>
-                                <th>Name</th>
-                                <th class="d-none d-sm-table-cell">Date</th>
-                                <th class="d-none d-md-table-cell">Amount</th>
+                                <th>#</th>
+                                <th class="d-none d-sm-table-cell">Дата</th>
+                                <th>Сообщение</th>
+                                <th class="d-none d-md-table-cell">Действия</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -103,23 +107,6 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                 $paginator->printPagination();
 
                 ?>
-                <!--<ul class="pagination">
-                    <li class="page-item page-prev disabled">
-                        <a class="page-link" href="#" tabindex="-1">
-                            Prev
-                        </a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">4</a></li>
-                    <li class="page-item"><a class="page-link" href="#">5</a></li>
-                    <li class="page-item page-next">
-                        <a class="page-link" href="#">
-                            Next
-                        </a>
-                    </li>
-                </ul>-->
             </div>
         </div>
     </div>
