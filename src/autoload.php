@@ -15,6 +15,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/events/VkWallReplyEditEvent.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/events/VkWallReplyNewEvent.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/events/VkWallReplyRestoreEvent.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Captcha.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Paginator.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/StringUtils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/VkUtils.php';

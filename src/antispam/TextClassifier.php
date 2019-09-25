@@ -110,6 +110,8 @@ class TextClassifier {
         $query->execute([TextClassifier::CATEGORY_HAM]);
         $hamCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 
+        // actually this query is not needed
+        // this is a future-reserved check
         $query = $db->query('SELECT COUNT(*) AS `count` FROM `trainingSet`;');
         $totalCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 

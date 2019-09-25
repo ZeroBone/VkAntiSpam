@@ -55,3 +55,9 @@ CREATE TABLE `users` (
     KEY (`ip`),
     KEY (`email`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `settings` (
+    `name` VARCHAR(16) NOT NULL,
+    `value` TEXT NOT NULL,
+    PRIMARY KEY (`name`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;

@@ -1,7 +1,8 @@
 <?php
 
-
-
+if (!defined('SECURITY_CANARY')) {
+    exit(0);
+}
 
 ?></div>
 </div>

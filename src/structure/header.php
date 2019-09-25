@@ -49,6 +49,16 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
     <script src="/assets/plugins/maps-google/plugin.js"></script>
     <!-- Input Mask Plugin -->
     <script src="/assets/plugins/input-mask/plugin.js"></script>
+    <!--<script>
+        require.config({
+            shim: {
+                'datatables': ['jquery','core'],
+            },
+            paths: {
+                'datatables': '/assets/plugins/datatables/datatables.min',
+            }
+        });
+    </script>-->
 </head>
 <body class="">
 <div class="page">
@@ -126,7 +136,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                 <a href="/" class="nav-link"><i class="fe fe-home"></i> Панель управления</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-calendar"></i> Антиспам</a>
+                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-minus-circle"></i> Антиспам</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">
                                     <a href="/antispam/test" class="dropdown-item">Проверка сообщений</a>
                                     <?php
@@ -140,29 +150,27 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                     ?>
                                 </div>
                             </li>
-                            <li class="nav-item">
-                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Настройки</a>
-                                <div class="dropdown-menu dropdown-menu-arrow">
-                                    <?php
+                            <?php
 
-                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {
-                                        ?>
+                            if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {
+
+                                ?>
+                                <li class="nav-item">
+                                    <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Система</a>
+                                    <div class="dropdown-menu dropdown-menu-arrow">
                                         <a href="/account/register" class="dropdown-item">Регистрация пользователей</a>
-                                        <?php
-                                    }
+                                        <a href="/settings/general" class="dropdown-item">Общие настройки</a>
+                                    </div>
+                                </li>
+                                <?php
 
-                                    ?>
-                                </div>
+                            }
+
+                            ?>
+                            <li class="nav-item">
+                                <a href="/messages/" class="nav-link"><i class="fe fe-message-square"></i> Сообщения</a>
                             </li>
-                            <!--<li class="nav-item">
-                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-box"></i> Interface</a>
-                                <div class="dropdown-menu dropdown-menu-arrow">
-                                    <a href="./cards.html" class="dropdown-item ">Cards design</a>
-                                    <a href="./charts.html" class="dropdown-item ">Charts</a>
-                                    <a href="./pricing-cards.html" class="dropdown-item ">Pricing cards</a>
-                                </div>
-                            </li>
-                            <li class="nav-item dropdown">
+                            <!--<li class="nav-item dropdown">
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-file"></i> Pages</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">
                                     <a href="./profile.html" class="dropdown-item ">Profile</a>

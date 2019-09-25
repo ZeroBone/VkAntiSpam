@@ -8,7 +8,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 
 VkAntiSpam::web();
 
-if (!VkAntiSpam::get()->account->loggedIn()) { // TODO: remove check from here
+if (!VkAntiSpam::get()->account->loggedIn()) {
 
     Utils::redirect('/account/login');
     exit(0);
