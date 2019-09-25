@@ -58,14 +58,25 @@ CREATE TABLE `users` (
     KEY (`email`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `settings` (
+CREATE TABLE `vkGroups` ( -- TODO
+    `vkId` BIGINT NOT NULL,
+    `name` VARCHAR(32) NOT NULL,
+    `secret` VARCHAR(50) NOT NULL,
+    `token` VARCHAR(85) NOT NULL,
+    `adminVkId` BIGINT NOT NULL,
+    `adminVkToken` BIGINT NOT NULL,
+    `confirmationToken` VARCHAR(8) NOT NULL,
+    PRIMARY KEY (`vkId`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `settings` ( -- TODO
     `groupId` BIGINT NOT NULL,
     `name` VARCHAR(16) NOT NULL,
     `value` TEXT NOT NULL,
     PRIMARY KEY (`name`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `messageWhitelist` (
+CREATE TABLE `messageWhitelist` ( -- TODO
     `groupId` BIGINT NOT NULL,
     `vkId` BIGINT NOT NULL, -- user or group id
     KEY (`groupId`),

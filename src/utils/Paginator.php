@@ -12,7 +12,7 @@ interface PaginatorClient {
 
 class Paginator {
 
-    const NEAR_PAGES_COUNT = 5;
+    const NEAR_PAGES_COUNT = 3;
 
     private $totalItems;
 
@@ -51,17 +51,17 @@ class Paginator {
             <?php if ($this->currentPage <= 1): ?>
                 <li class="page-item page-prev disabled">
                     <a class="page-link" href="<?= $this->c->getPageUrl(1); ?>" tabindex="-1">
-                        Предыдущая
+                        Пред.
                     </a>
                 </li>
             <?php else: ?>
                 <li class="page-item page-prev">
                     <a class="page-link" href="<?= $this->c->getPageUrl($this->currentPage - 1); ?>">
-                        Предыдущая
+                        Пред.
                     </a>
                 </li>
             <?php endif; ?>
-            <?php for ($pageNumber = max(1, $this->currentPage - static::NEAR_PAGES_COUNT); $pageNumber <= min($totalPages, $this->currentPage + static::NEAR_PAGES_COUNT); $pageNumber++): ?>
+            <?php for ($pageNumber = max(1, $this->currentPage - static::NEAR_PAGES_COUNT + 1); $pageNumber <= min($totalPages, $this->currentPage + static::NEAR_PAGES_COUNT - 1); $pageNumber++): ?>
                 <?php if ($pageNumber === $this->currentPage): ?>
                     <li class="page-item active">
                         <a class="page-link" href="<?= $this->c->getPageUrl($pageNumber); ?>"><?= number_format($pageNumber, 0, '.', ','); ?></a>
@@ -75,13 +75,13 @@ class Paginator {
             <?php if ($this->currentPage >= $totalPages): ?>
                 <li class="page-item page-next disabled">
                     <a class="page-link" href="<?= $this->c->getPageUrl($totalPages); ?>" tabindex="-1">
-                        Следующая
+                        След.
                     </a>
                 </li>
             <?php else: ?>
                 <li class="page-item page-next">
                     <a class="page-link" href="<?= $this->c->getPageUrl($this->currentPage + 1); ?>">
-                        Следующая
+                        След.
                     </a>
                 </li>
             <?php endif; ?>
