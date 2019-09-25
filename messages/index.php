@@ -3,6 +3,7 @@
 use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
+use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\Utils\Utils;
 use VkAntiSpam\VkAntiSpam;
 
@@ -33,7 +34,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                $query = $db->query('SELECT COUNT(*) AS `count` FROM `messages`;');
+                $query = $db->query('SELECT COUNT(*) AS `count` FROM `messages` WHERE `category` = 0;');
                 $totalItems = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 
                 $paginator = new Paginator(
@@ -46,7 +47,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                             $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                            $query = $db->query('SELECT * FROM `messages` ORDER BY `id` LIMIT 50 OFFSET ' . (int)$offset . ';');
+                            $query = $db->query('SELECT * FROM `messages` WHERE `category` = 0 ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
 
                             while (($currentRow = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
@@ -60,7 +61,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                     </td>
                                     <td><?= $currentRow['id']; ?></td>
                                     <td class="d-none d-sm-table-cell"><?= date('d.m.Y', (int)$currentRow['date']); ?></td>
-                                    <td><?= $currentRow['message']; ?></td>
+                                    <td><?= StringUtils::escapeHTML($currentRow['message']); ?></td>
                                     <td class="d-none d-md-table-cell">
                                         <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['context']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Стена</a>
                                         <a class="btn btn-danger btn-sm" href="javascript:void(0)">Это спам</a>

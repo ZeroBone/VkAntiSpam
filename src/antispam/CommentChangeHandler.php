@@ -122,7 +122,7 @@ class CommentChangeHandler {
                     isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
                     isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
                     (int)$this->object['post_id'], // context
-                    TextClassifier::CATEGORY_INVALID // category
+                    ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
                 ]);
 
                 if ($category === TextClassifier::CATEGORY_SPAM) {
