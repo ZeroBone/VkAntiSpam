@@ -5,13 +5,16 @@ CREATE TABLE `messages` (
     `vkId` BIGINT NOT NULL, -- if type == 1, it is the comment id
     `author` BIGINT NOT NULL, -- author of the message, vk id
     `message` TEXT NOT NULL,
+    `messageHash` BIGINT UNSIGNED NOT NULL, -- crc32 of the message
     `date` BIGINT UNSIGNED NOT NULL, -- message date
     `replyToUser` BIGINT NOT NULL, -- vk id of the user this message was replied to, 0 if not replied,
     `replyToMessage` BIGINT NOT NULL, -- vk id of the message, 0 if unknown
-    `context` BIGINT NOT NULL, -- if type == 1, this is the vk post id
+    `vkContext` BIGINT NOT NULL, -- if type == 1, this is the vk post id
     `category` INT UNSIGNED NOT NULL, -- 0 if unknown (probably ham), 1 if we are 100% sure it is ham, 2 if this message was classified as spam
     PRIMARY KEY (`id`),
     KEY (`type`),
+    KEY (`messageHash`),
+    KEY (`date`),
     KEY (`category`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
@@ -25,13 +28,13 @@ CREATE TABLE `bans` (
 
 CREATE TABLE `trainingSet` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `document` TEXT NOT NULL,
+    `text` TEXT NOT NULL,
     `category` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
     KEY (`category`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `wordFrequency` (
+CREATE TABLE `words` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `word` VARCHAR(255),
     `count` INT UNSIGNED NOT NULL,
@@ -46,7 +49,8 @@ CREATE TABLE `users` (
     `name` VARCHAR(16) NOT NULL,
     `email` VARCHAR(40) NOT NULL,
     `password` CHAR(128) NOT NULL,
-    `salt` CHAR(64),
+    `salt` CHAR(64) NOT NULL,
+    `csrfToken` CHAR(32) NOT NULL,
     `ip` VARCHAR(39) NOT NULL,
     `ipLastLogin` VARCHAR(39) NOT NULL,
     `dateRegister` BIGINT UNSIGNED NOT NULL,

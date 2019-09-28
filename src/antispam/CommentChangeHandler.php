@@ -114,13 +114,14 @@ class CommentChangeHandler {
             case TextClassifier::CATEGORY_SPAM:
 
                 $db = VkAntiSpam::get()->getDatabaseConnection();
-                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `date`, `replyToUser`, `replyToMessage`, `context`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?);');
+                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
                 $query->execute([
                     $vkGroup->vkId, // groupId
                     1, // type
                     $commentId, // vkId
                     $commentAuthor, // author
                     $commentText, // message
+                    abs(crc32($commentText)), // message hash
                     time(), // date
                     isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
                     isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,

@@ -52,21 +52,19 @@ class TextClassifier {
 
         $db = VkAntiSpam::get()->getDatabaseConnection();
 
-        $query = $db->prepare('INSERT INTO `trainingSet` (`document`, `category`) VALUES (?, ?);');
+        $query = $db->prepare('INSERT INTO `trainingSet` (`text`, `category`) VALUES (?, ?);');
         $query->execute([
             $text,
             $category
         ]);
 
-        // $sql = mysqli_query($conn, "INSERT into trainingSet (document, category) values('$sentence', '$category')");
-
         $keywords = $this->tokenize($text);
 
-        $presenceCheckQuery = $db->prepare('SELECT COUNT(*) AS `total` FROM `wordFrequency` WHERE `word` = ? AND `category` = ?;');
+        $presenceCheckQuery = $db->prepare('SELECT COUNT(*) AS `total` FROM `words` WHERE `word` = ? AND `category` = ?;');
 
-        $insertQuery = $db->prepare('INSERT INTO `wordFrequency` (`word`, `category`, `count`) VALUES (?, ?, 1);');
+        $insertQuery = $db->prepare('INSERT INTO `words` (`word`, `category`, `count`) VALUES (?, ?, 1);');
 
-        $updateQuery = $db->prepare('UPDATE wordFrequency SET `count` = `count` + 1 WHERE `word` = ?;');
+        $updateQuery = $db->prepare('UPDATE `words` SET `count` = `count` + 1 WHERE `word` = ?;');
 
         foreach ($keywords as $keyword) {
 
@@ -141,7 +139,7 @@ class TextClassifier {
 
         $spammieness = log($spamChance);
 
-        $countLookupQuery = $db->prepare('SELECT `count` FROM `wordFrequency` WHERE `word` = ? AND `category` = ?;');
+        $countLookupQuery = $db->prepare('SELECT `count` FROM `words` WHERE `word` = ? AND `category` = ?;');
 
         foreach ($keywords as $keyword) {
 

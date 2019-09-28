@@ -139,13 +139,14 @@ if (
 
                 $passwordHashed = Account::hashPassword($password, $salt);
 
-                $query = $db->prepare('INSERT INTO `users` (`name`, `email`, `password`, `salt`, `ip`, ipLastLogin, dateRegister, dateLastLogin, role) VALUES (?,?,?,?,?,?,?,?,?);');
+                $query = $db->prepare('INSERT INTO `users` (`name`, `email`, `password`, `salt`, `csrfToken`, `ip`, ipLastLogin, dateRegister, dateLastLogin, role) VALUES (?,?,?,?,?,?,?,?,?,?);');
 
                 $query->execute([
                     $name,
                     $email,
                     $passwordHashed,
                     $salt,
+                    StringUtils::generateCode(32),
                     $ip, // ip
                     $ip, // last ip
                     time(),
