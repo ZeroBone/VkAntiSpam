@@ -51,12 +51,24 @@ CREATE TABLE `users` (
     `ipLastLogin` VARCHAR(39) NOT NULL,
     `dateRegister` BIGINT UNSIGNED NOT NULL,
     `dateLastLogin` BIGINT UNSIGNED NOT NULL,
-    `role` INT UNSIGNED NOT NULL,
+    `role` INT UNSIGNED NOT NULL, -- overall platform role
     PRIMARY KEY (`id`),
     KEY (`name`),
     KEY (`ip`),
     KEY (`email`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `vkUsers` ( -- TODO
+   `vkId` BIGINT NOT NULL,
+   `firstName` VARCHAR(40) NOT NULL,
+   `lastName` VARCHAR(40) NOT NULL,
+   `closedProfile` TINYINT NOT NULL,
+   `photo_50` VARCHAR(255) NOT NULL,
+   `photo_100` VARCHAR(255) NOT NULL,
+   `photo_200` VARCHAR(255) NOT NULL,
+   `photo_max` VARCHAR(255) NOT NULL,
+   PRIMARY KEY (`vkId`)
+) ENGINE=MyISAM, charset=utf8;
 
 CREATE TABLE `vkGroups` ( -- TODO
     `vkId` BIGINT NOT NULL,
@@ -69,16 +81,38 @@ CREATE TABLE `vkGroups` ( -- TODO
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `settings` ( -- TODO
-    `groupId` BIGINT NOT NULL,
-    `name` VARCHAR(16) NOT NULL,
-    `value` TEXT NOT NULL,
-    PRIMARY KEY (`name`)
+CREATE TABLE `vkGroupManagers` ( -- TODO
+    `vkGroupId` BIGINT NOT NULL,
+    `userId` BIGINT UNSIGNED NOT NULL,
+    `role` INT NOT NULL,
+    FOREIGN KEY (`vkGroupId`) REFERENCES `vkGroups`(`vkId`),
+    FOREIGN KEY (`userId`) REFERENCES `users`(`id`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `messageWhitelist` ( -- TODO
-    `groupId` BIGINT NOT NULL,
+CREATE TABLE `vkMessageWhitelist` ( -- TODO
+    `vkGroupId` BIGINT NOT NULL,
     `vkId` BIGINT NOT NULL, -- user or group id
-    KEY (`groupId`),
+    KEY (`vkGroupId`),
     KEY (`vkId`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `vkPostWhitelist` ( -- TODO
+    `vkGroupId` BIGINT NOT NULL,
+    `postVkId` BIGINT NOT NULL,
+    KEY (`vkGroupId`),
+    KEY (`postVkId`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `vkRestrictedAttachments` ( -- TODO
+    `vkGroupId` BIGINT NOT NULL,
+    `attachmentId` INT NOT NULL,
+    KEY (`vkGroupId`)
+) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
+
+CREATE TABLE `vkGroupConfig` ( -- TODO
+    `vkGroupId` BIGINT NOT NULL,
+    `minMessageLength` INT UNSIGNED NOT NULL,
+    `maxMessageLength` INT UNSIGNED NOT NULL,
+    `spamBanDuration` INT UNSIGNED NOT NULL, -- 0 if bans are disabled
+    PRIMARY KEY (`vkGroupId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
