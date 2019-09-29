@@ -9,6 +9,8 @@ if (!defined('SECURITY_CANARY')) {
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 
+define('VAS_IN_INSTALLATION', true); // IMPORTANT: REMOVE THIS LINE AFTER YOU HAVE INSTALLED THE SYSTEM
+
 return (new VkAntiSpamConfig())
     ->dbName('antispam')
     ->dbUser('root')
