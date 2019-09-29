@@ -62,7 +62,7 @@ CREATE TABLE `users` (
     KEY (`email`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `vkUsers` ( -- TODO
+CREATE TABLE `vkUsers` (
    `vkId` BIGINT NOT NULL,
    `firstName` VARCHAR(40) NOT NULL,
    `lastName` VARCHAR(40) NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE `vkUsers` ( -- TODO
    PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8;
 
-CREATE TABLE `vkGroups` ( -- TODO
+CREATE TABLE `vkGroups` (
     `vkId` BIGINT NOT NULL,
     `name` VARCHAR(32) NOT NULL,
     `secret` VARCHAR(50) NOT NULL,
@@ -83,10 +83,10 @@ CREATE TABLE `vkGroups` ( -- TODO
     `adminVkToken` VARCHAR(85) NOT NULL,
     `confirmationToken` VARCHAR(8) NOT NULL,
     -- config
-    `minMessageLength` INT UNSIGNED NOT NULL,
-    `maxMessageLength` INT UNSIGNED NOT NULL,
-    `restrictedAttachments` BIGINT UNSIGNED NOT NULL, -- bitmask of restricted attachments
-    `spamBanDuration` INT UNSIGNED NOT NULL, -- 0 if bans are disabled
+    `minMessageLength` INT UNSIGNED NOT NULL DEFAULT 0,
+    `maxMessageLength` INT UNSIGNED NOT NULL DEFAULT 255,
+    `restrictedAttachments` BIGINT UNSIGNED NOT NULL DEFAULT 0, -- bitmask of restricted attachments
+    `spamBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 

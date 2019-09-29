@@ -11,6 +11,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 $vas = VkAntiSpam::web();
 
 if (!defined('VAS_IN_INSTALLATION')) {
+
     if (!$vas->account->loggedIn()) {
         Utils::redirect('/account/login');
         exit(0);
@@ -20,6 +21,7 @@ if (!defined('VAS_IN_INSTALLATION')) {
         Utils::redirect('/account/login');
         exit(0);
     }
+
 }
 
 $captcha = new Captcha();

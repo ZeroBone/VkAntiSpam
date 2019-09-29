@@ -93,7 +93,7 @@ class VkAntiSpam {
         unset($vkEvent);
 
         if (!hash_equals($vkGroup['secret'], $submSecret)) {
-            echo 'Invalid secret key!';
+            echo 'ok';
             exit(0);
         }
 

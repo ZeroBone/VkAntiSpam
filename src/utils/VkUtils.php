@@ -19,7 +19,7 @@ class VkUtils {
 
         if (!isset($params['v'])) {
 
-            $params['v'] = 5.69;
+            $params['v'] = '5.101';
         }
 
         if (!isset($params['access_token']) and $access_token !== false) {

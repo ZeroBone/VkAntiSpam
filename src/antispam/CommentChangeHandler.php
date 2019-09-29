@@ -2,6 +2,7 @@
 
 namespace VkAntiSpam\System;
 
+use PDO;
 use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\Utils\VkUtils;
 use VkAntiSpam\VkAntiSpam;
@@ -25,7 +26,7 @@ class CommentChangeHandler {
         // detect reply syntax
         $commentText = preg_replace('/\[(id)(\d+)\|([^\]]+)\]+/u', '$3', $commentText);
 
-        if ($commentAuthor === -$vkGroup->vkId) {
+        if ($commentAuthor === -$vkGroup['vkId']) {
             // don't check messages from the group
             // assume it's ham
 
@@ -49,7 +50,7 @@ class CommentChangeHandler {
 
                     case 'link':
 
-                        VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+                        VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
                         return;
 
@@ -59,7 +60,7 @@ class CommentChangeHandler {
                     case 'photos_list':
                     case 'page':
 
-                        // VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+                        // VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
                         return;
 
@@ -74,7 +75,7 @@ class CommentChangeHandler {
 
         if (StringUtils::getStringLength($commentText) > 250) {
 
-            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
             return;
 
@@ -84,7 +85,7 @@ class CommentChangeHandler {
 
             // message from group
 
-            VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+            VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
             return;
 
@@ -93,6 +94,7 @@ class CommentChangeHandler {
         if (StringUtils::getStringLength($commentText) === 0) {
 
             // there is no point in analyzing empty text
+            // nothing to do
 
             return;
 
@@ -102,54 +104,90 @@ class CommentChangeHandler {
 
         $category = $antispam->classify($commentText);
 
-        switch ($category) {
+        if ($category == TextClassifier::CATEGORY_INVALID) {
 
-            case TextClassifier::CATEGORY_INVALID:
+            VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
-                VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+            return;
 
-                return;
+        }
 
-            case TextClassifier::CATEGORY_HAM:
-            case TextClassifier::CATEGORY_SPAM:
+        // ham or spam
 
-                $db = VkAntiSpam::get()->getDatabaseConnection();
+        $vkResponse = VkUtils::callVkApi($vkGroup['token'], 'users.get', [
+            'user_ids' => $commentAuthor,
+            'fields' => implode(',', [
+                'photo_50',
+                'photo_100',
+                'photo_200',
+                'photo_max'
+            ])
+        ]);
 
-                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
-                $query->execute([
-                    $vkGroup->vkId, // groupId
-                    1, // type
-                    $commentId, // vkId
-                    $commentAuthor, // author
-                    $commentText, // message
-                    abs(crc32($commentText)), // message hash
-                    time(), // date
-                    isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
-                    isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
-                    (int)$this->object['post_id'], // context
-                    ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
-                ]);
+        // file_put_contents('test.json', json_encode($vkResponse));
 
-                // TODO: call users.get and add the user to the database
+        if (!isset($vkResponse['response'][0])) {
+            return;
+        }
 
-                if ($category === TextClassifier::CATEGORY_SPAM) {
+        $vkResponse = $vkResponse['response'][0];
 
-                    VkUtils::deleteGroupComment($vkGroup->adminToken, $vkGroup->vkId, $commentId);
+        $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                    $messageId = (int)$db->lastInsertId();
+        $query = $db->prepare('SELECT `vkId` FROM `vkUsers` WHERE `vkId` = ? LIMIT 1;');
+        $query->execute([
+            $commentAuthor
+        ]);
 
-                    $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
-                    $query->execute([
-                        $messageId,
-                        time()
-                    ]);
+        if (isset($query->fetch(PDO::FETCH_ASSOC)['vkId'])) {
 
-                }
+            // this user already exists
 
-                break;
+            // TODO: consider reputation change
 
-            default:
-                break;
+        }
+        else {
+
+            $query = $db->prepare('INSERT INTO `vkUsers` (vkId, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?);');
+            $query->execute([
+                $commentAuthor,
+                $vkResponse['first_name'],
+                $vkResponse['last_name'],
+                $vkResponse['is_closed'] ? 1 : 0,
+                $vkResponse['photo_50'],
+                $vkResponse['photo_100'],
+                $vkResponse['photo_200'],
+                $vkResponse['photo_max']
+            ]);
+
+        }
+
+        $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
+        $query->execute([
+            $vkGroup['vkId'], // groupId
+            1, // type
+            $commentId, // vkId
+            $commentAuthor, // author
+            $commentText, // message
+            abs(crc32($commentText)), // message hash
+            time(), // date
+            isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
+            isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
+            (int)$this->object['post_id'], // context
+            ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
+        ]);
+
+        if ($category === TextClassifier::CATEGORY_SPAM) {
+
+            VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+            $messageId = (int)$db->lastInsertId();
+
+            $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
+            $query->execute([
+                $messageId,
+                time()
+            ]);
 
         }
 

@@ -81,6 +81,16 @@ class Account {
 
     }
 
+    public function getId() {
+
+        if (!$this->loggedIn) {
+            throw new Exception('getId() called before authorization check');
+        }
+
+        return (int)$this->tokenPayload['id'];
+
+    }
+
     public function isRole($role) {
 
         if (!$this->loggedIn) {

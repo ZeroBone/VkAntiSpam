@@ -1,6 +1,7 @@
 <?php
 
 use VkAntiSpam\Account\Account;
+use VkAntiSpam\Account\GroupRole;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
 use VkAntiSpam\Utils\StringUtils;
@@ -33,6 +34,117 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
         <div class="row">
             <div class="col-12">
                 <?php
+
+                // form handling
+
+                if (
+                    isset($_POST['vkId']) &&
+                    isset($_POST['name']) &&
+                    isset($_POST['secret']) &&
+                    isset($_POST['token']) &&
+                    isset($_POST['adminVkId']) &&
+                    isset($_POST['adminVkToken']) &&
+                    isset($_POST['confirmationToken'])
+                ) {
+
+                    $vkId = (int)$_POST['vkId'];
+                    $name = (string)$_POST['name'];
+                    $secret = (string)$_POST['secret'];
+                    $token = (string)$_POST['token'];
+                    $adminVkId = (int)$_POST['adminVkId'];
+                    $adminVkToken = (string)$_POST['adminVkToken'];
+                    $confirmationToken = (string)$_POST['confirmationToken'];
+
+                    if ($vkId <= 0) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Некорректный ID группы.
+                        </div>
+                        <?php
+                    }
+                    elseif ($adminVkId <= 0) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Некорректный ID администратора.
+                        </div>
+                        <?php
+                    }
+                    elseif (StringUtils::getStringLength($name) > 32 || StringUtils::getStringLength($name) === 0) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Название группы пустое или слишком длинное.
+                        </div>
+                        <?php
+                    }
+                    elseif (StringUtils::getStringLength($secret) > 50) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Секретный ключ слишком длинный.
+                        </div>
+                        <?php
+                    }
+                    elseif (strlen($token) !== 85) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Токен неверной длины.
+                        </div>
+                        <?php
+                    }
+                    elseif (strlen($adminVkToken) !== 85) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Токен администратора неверной длины.
+                        </div>
+                        <?php
+                    }
+                    elseif (strlen($confirmationToken) !== 8) {
+                        ?>
+                        <div class="alert alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Токен подтверждения неверной длины.
+                        </div>
+                        <?php
+                    }
+                    else {
+
+                        $db = VkAntiSpam::get()->getDatabaseConnection();
+
+                        $query = $db->prepare('INSERT INTO `vkGroups` (vkId, `name`, secret, token, adminVkId, adminVkToken, confirmationToken) VALUES (?,?,?,?,?,?,?);');
+                        $query->execute([
+                            $vkId,
+                            $name,
+                            $secret,
+                            $token,
+                            $adminVkId,
+                            $adminVkToken,
+                            $confirmationToken
+                        ]);
+
+                        $query = $db->prepare('INSERT INTO `vkGroupManagers` (`vkGroupId`, `userId`, `role`) VALUES (?,?,?);');
+                        $query->execute([
+                            $vkId,
+                            $vas->account->getId(),
+                            GroupRole::ADMIN // assign the creator of the group admin priveleges
+                        ]);
+
+                        ?>
+                        <div class="alert alert-success" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            Группа успешно добавлена.
+                        </div>
+                        <?php
+
+                    }
+
+                }
+
+                // table
 
                 $currentPage = 1;
 
@@ -67,8 +179,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                     <td><?= StringUtils::escapeHTML(substr($currentRow['token'], 0, 6)) . '...'; ?></td>
                                     <td><?= StringUtils::escapeHTML(substr($currentRow['confirmationToken'], 0, 6)) . '...'; ?></td>
                                     <td class="d-none d-md-table-cell">
-                                        <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['context']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Перейти</a>
-                                        <a class="btn btn-success btn-sm" href="javascript:void(0)" target="_blank">Администратор</a>
+                                        <a class="btn btn-secondary btn-sm" href="https://vk.com/public<?= $currentRow['vkId']; ?>" target="_blank">Перейти</a>
+                                        <a class="btn btn-success btn-sm" href="https://vk.com/id<?= $currentRow['adminVkId']; ?>" target="_blank">Администратор</a>
                                         <a class="btn btn-danger btn-sm" href="javascript:void(0)">Удалить</a>
                                     </td>
                                 </tr>
@@ -137,13 +249,13 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <div class="form-group">
                             <label class="form-label">
                                 Секретный ключ
-                                <input type="text" class="form-control" name="secret" maxlength="50" required="">
+                                <input type="password" class="form-control" name="secret" maxlength="50" required="">
                             </label>
                         </div>
                         <div class="form-group">
                             <label class="form-label">
                                 Токен группы
-                                <input type="text" class="form-control" name="token" minlength="85" maxlength="85" required="">
+                                <input type="password" class="form-control" name="token" minlength="85" maxlength="85" required="">
                             </label>
                         </div>
                         <div class="form-group">
@@ -155,13 +267,13 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <div class="form-group">
                             <label class="form-label">
                                 Токен администратора
-                                <input type="text" class="form-control" name="adminVkToken" minlength="85" maxlength="85" required="">
+                                <input type="password" class="form-control" name="adminVkToken" minlength="85" maxlength="85" required="">
                             </label>
                         </div>
                         <div class="form-group">
                             <label class="form-label">
                                 Токен подтверждения
-                                <input type="text" class="form-control" name="confirmationToken" minlength="8" maxlength="8" required="">
+                                <input type="password" class="form-control" name="confirmationToken" minlength="8" maxlength="8" required="">
                             </label>
                         </div>
                         <div class="card-footer text-right">
