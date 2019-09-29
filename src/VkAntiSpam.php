@@ -61,93 +61,79 @@ class VkAntiSpam {
         $vkEvent = json_decode(file_get_contents('php://input'), true);
 
         if (!$vkEvent) {
-
             echo 'ok';
-
             exit(0);
-
         }
 
-        $vkEvent['type'] = (string)$vkEvent['type'];
-        $vkEvent['group_id'] = (int)$vkEvent['group_id'];
+        $eventType = (string)$vkEvent['type'];
+        $groupId = (int)$vkEvent['group_id'];
 
-        $response = 'ok';
+        $db = static::getDatabaseConnection();
+
+        $query = $db->prepare('SELECT * FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
+        $query->execute([
+            $groupId
+        ]);
+
+        $vkGroup = $query->fetch(PDO::FETCH_ASSOC);
+
+        if (!isset($vkGroup['vkId'])) {
+            echo 'ok';
+            exit(0);
+        }
+
+        if ($eventType === 'confirmation') {
+            echo $vkGroup['confirmationToken'];
+            exit(0);
+        }
+
+        $submSecret = (string)$vkEvent['secret'];
+        $submObject = (array)$vkEvent['object'];
+
+        unset($vkEvent);
+
+        if (!hash_equals($vkGroup['secret'], $submSecret)) {
+            echo 'Invalid secret key!';
+            exit(0);
+        }
 
         /**
          * @var $event VkEvent
          */
         $event = null;
 
-        /**
-         * @var $groupConfig VkAntiSpamGroupConfig
-         */
-        foreach ($this->config->groups as $groupId => $groupConfig) {
+        switch ($eventType) {
 
-            if ((int)$groupId === $vkEvent['group_id']) {
+            case 'wall_reply_new':
 
-                $groupConfig->vkId = (int)$groupId;
-
-                if ($vkEvent['type'] === 'confirmation') {
-
-                    $response = $groupConfig->confirmationToken;
-
-                }
-                else {
-
-                    $vkEvent['secret'] = (string)$vkEvent['secret'];
-                    $vkEvent['object'] = (array)$vkEvent['object'];
-
-                    if (!hash_equals($groupConfig->secret, $vkEvent['secret'])) {
-
-                        throw new Exception('Invalid key');
-
-                    }
-
-                    switch ($vkEvent['type']) {
-
-                        case 'wall_reply_new':
-
-                            $event = new VkWallReplyNewEvent($vkEvent['type'], $vkEvent['object']);
-
-                            break;
-
-                        case 'wall_reply_edit':
-
-                            $event = new VkWallReplyEditEvent($vkEvent['type'], $vkEvent['object']);
-
-                            break;
-
-                        case 'wall_reply_restore':
-
-                            $event = new VkWallReplyRestoreEvent($vkEvent['type'], $vkEvent['object']);
-
-                            break;
-
-                        case 'wall_reply_delete':
-
-                            $event = new VkWallReplyDeleteEvent($vkEvent['type'], $vkEvent['object']);
-
-                            break;
-
-                        default:
-                            break;
-
-                    }
-
-                }
+                $event = new VkWallReplyNewEvent($eventType, $submObject);
 
                 break;
 
-            }
+            case 'wall_reply_edit':
+
+                $event = new VkWallReplyEditEvent($eventType, $submObject);
+
+                break;
+
+            case 'wall_reply_restore':
+
+                $event = new VkWallReplyRestoreEvent($eventType, $submObject);
+
+                break;
+
+            case 'wall_reply_delete':
+
+                $event = new VkWallReplyDeleteEvent($eventType, $submObject);
+
+                break;
+
+            default:
+                break;
 
         }
 
-        unset($groupId);
-
-        echo $response;
-
-        unset($response);
-        unset($vkEvent);
+        echo 'ok';
 
         /*session_write_close();
         fastcgi_finish_request();*/ // TODO: uncomment
@@ -160,7 +146,7 @@ class VkAntiSpam {
         // flush();
 
         if ($event !== null) {
-            $event->handle($groupConfig);
+            $event->handle($vkGroup);
         }
 
     }

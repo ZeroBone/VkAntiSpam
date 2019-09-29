@@ -5,8 +5,6 @@ namespace VkAntiSpam\Config;
 
 class VkAntiSpamConfig {
 
-    public $groups;
-
     public $dbHost = 'localhost';
 
     public $dbName;
@@ -27,18 +25,6 @@ class VkAntiSpamConfig {
     public $recaptchaPrivateKey;
 
     public function __construct() {}
-
-    /**
-     * @param $vkGroupConfig VkAntiSpamGroupConfig
-     * @return $this
-     */
-    public function addGroup($vkGroupConfig) {
-
-        $this->groups[$vkGroupConfig->vkId] = $vkGroupConfig;
-        
-        return $this;
-
-    }
 
     /**
      * @param string $dbHost

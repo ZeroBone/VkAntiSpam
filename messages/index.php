@@ -1,6 +1,5 @@
 <?php
 
-use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
 use VkAntiSpam\Utils\StringUtils;

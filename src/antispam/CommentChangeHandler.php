@@ -114,6 +114,7 @@ class CommentChangeHandler {
             case TextClassifier::CATEGORY_SPAM:
 
                 $db = VkAntiSpam::get()->getDatabaseConnection();
+
                 $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
                 $query->execute([
                     $vkGroup->vkId, // groupId
@@ -128,6 +129,8 @@ class CommentChangeHandler {
                     (int)$this->object['post_id'], // context
                     ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
                 ]);
+
+                // TODO: call users.get and add the user to the database
 
                 if ($category === TextClassifier::CATEGORY_SPAM) {
 

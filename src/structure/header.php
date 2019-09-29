@@ -85,7 +85,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                     switch (VkAntiSpam::get()->account->getRole()) {
 
                                         case Account::ROLE_VISITOR:
-                                            $role = 'Наблюдатель';
+                                            $role = 'Пользователь';
                                             break;
 
                                         case Account::ROLE_MODERATOR:
@@ -150,23 +150,26 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                     ?>
                                 </div>
                             </li>
-                            <?php
+                            <?php if (VkAntiSpam::get()->account->isRole(Account::ROLE_MODERATOR)): ?>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Настройки</a>
+                                <div class="dropdown-menu dropdown-menu-arrow">
+                                    <a href="/settings/general" class="dropdown-item">Общие настройки</a>
+                                    <?php
 
-                            if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {
+                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {
 
-                                ?>
-                                <li class="nav-item">
-                                    <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Система</a>
-                                    <div class="dropdown-menu dropdown-menu-arrow">
+                                        ?>
                                         <a href="/account/register" class="dropdown-item">Регистрация пользователей</a>
-                                        <a href="/settings/general" class="dropdown-item">Общие настройки</a>
-                                    </div>
-                                </li>
-                                <?php
+                                        <a href="/settings/groups" class="dropdown-item">Группы</a>
+                                        <?php
 
-                            }
+                                    }
 
-                            ?>
+                                    ?>
+                                </div>
+                            </li>
+                            <?php endif; ?>
                             <li class="nav-item">
                                 <a href="/messages/" class="nav-link"><i class="fe fe-message-square"></i> Сообщения</a>
                             </li>
