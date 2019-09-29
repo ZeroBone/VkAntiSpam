@@ -37,7 +37,7 @@ SELECT COUNT(*) AS `result` FROM `trainingSet`
 UNION
 SELECT COUNT(*) AS `result` FROM `trainingSet` WHERE `category` = ?
 UNION
-SELECT COUNT(*) AS `result` FROM `wordFrequency`
+SELECT COUNT(*) AS `result` FROM `words`
 UNION
 SELECT COUNT(*) AS `result` FROM `users`;
 ');
