@@ -95,7 +95,9 @@ CREATE TABLE `vkGroupManagers` ( -- TODO
     `userId` BIGINT UNSIGNED NOT NULL,
     `role` INT NOT NULL,
     FOREIGN KEY (`vkGroupId`) REFERENCES `vkGroups`(`vkId`),
-    FOREIGN KEY (`userId`) REFERENCES `users`(`id`)
+    FOREIGN KEY (`userId`) REFERENCES `users`(`id`),
+    KEY (`vkGroupId`),
+    KEY (`userId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `vkMessageWhitelist` ( -- TODO

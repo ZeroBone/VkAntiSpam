@@ -154,7 +154,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                             <li class="nav-item">
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Настройки</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">
-                                    <a href="/settings/general" class="dropdown-item">Общие настройки</a>
+                                    <a href="/settings/group/" class="dropdown-item">Настройки групп</a>
                                     <?php
 
                                     if (VkAntiSpam::get()->account->isRole(Account::ROLE_ADMIN)) {

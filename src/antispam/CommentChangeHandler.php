@@ -4,6 +4,7 @@ namespace VkAntiSpam\System;
 
 use PDO;
 use VkAntiSpam\Utils\StringUtils;
+use VkAntiSpam\Utils\VkAttachment;
 use VkAntiSpam\Utils\VkUtils;
 use VkAntiSpam\VkAntiSpam;
 
@@ -44,33 +45,32 @@ class CommentChangeHandler {
         }
 
         if (isset($this->object['attachments'])) {
+
+            $incomingAttachments = 0;
+
+            $commentAttachmentsMap = VkAttachment::getVkIdToBitmaskCommentMapping();
+
             foreach ((array)$this->object['attachments'] as $commentAttachment) {
 
-                switch ($commentAttachment['type']) {
+                $commentAttachmentType = (string)$commentAttachment['type'];
 
-                    case 'link':
-
-                        VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
-
-                        return;
-
-                    case 'video':
-                    case 'photo':
-                    case 'posted_photo':
-                    case 'photos_list':
-                    case 'page':
-
-                        // VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
-
-                        return;
-
-                    default:
-                        break;
-
-
+                if (!isset($commentAttachmentsMap[$commentAttachmentType])) {
+                    continue;
                 }
 
+                $incomingAttachments |= $commentAttachmentsMap[$commentAttachmentType];
+
             }
+
+            if ($incomingAttachments & (int)$vkGroup['restrictedAttachments'] !== 0) {
+                // spam
+
+                VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+                return;
+
+            }
+
         }
 
         if (StringUtils::getStringLength($commentText) > 250) {

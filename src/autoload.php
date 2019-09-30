@@ -18,4 +18,5 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Captcha.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Paginator.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/StringUtils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/VkAttachment.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/utils/VkUtils.php';
