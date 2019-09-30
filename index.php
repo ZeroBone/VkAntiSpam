@@ -30,15 +30,15 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
             $query = $db->prepare('
 SELECT COUNT(*) AS `result` FROM `messages` WHERE `date` > ?
-UNION
+UNION ALL
 SELECT COUNT(*) AS `result` FROM `bans` WHERE `date` > ?
-UNION
+UNION ALL
 SELECT COUNT(*) AS `result` FROM `trainingSet`
-UNION
+UNION ALL
 SELECT COUNT(*) AS `result` FROM `trainingSet` WHERE `category` = ?
-UNION
+UNION ALL
 SELECT COUNT(*) AS `result` FROM `words`
-UNION
+UNION ALL
 SELECT COUNT(*) AS `result` FROM `users`;
 ');
 
