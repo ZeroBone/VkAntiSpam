@@ -29,7 +29,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
+$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration`, `learnFromOutcomingComments`, `deleteMessagesFromGroups` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
 $query->execute([
     (int)$_GET['g']
 ]);
@@ -52,7 +52,7 @@ if (!isset($vkGroup['vkId'])) {
     <?php
 
 }
-// TODO: verify that user can modify settings
+// TODO: verify that user is editor in group or editor as account privelege
 else {
 
     ?>
@@ -72,8 +72,8 @@ else {
                     isset($_POST['spamBanDuration'])
                 ) {
 
-                    $sMinMessageLength = max((int)$_POST['minMessageLength'], 0);
-                    $sMaxMessageLength = max((int)$_POST['maxMessageLength'], 0);
+                    $sMinMessageLength = min(max((int)$_POST['minMessageLength'], 0), 10000);
+                    $sMaxMessageLength = min(max((int)$_POST['maxMessageLength'], 0), 10000);
                     $sSpamBanDuration = max((int)$_POST['spamBanDuration'], 0);
 
                     $restrictedAttachments = [];
@@ -90,12 +90,18 @@ else {
 
                     // echo $newRestrictedAttachments;
 
-                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ? WHERE `vkId` = ? LIMIT 1;');
+                    $learnFromOutcomingComments = isset($_POST['learnFromOutcomingComments']) ? 1 : 0;
+
+                    $deleteMessagesFromGroups = isset($_POST['deleteMessagesFromGroups']) ? 1 : 0;
+
+                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `learnFromOutcomingComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
                     $query->execute([
                         $sMinMessageLength, // min message length
                         $sMaxMessageLength, // max message length
                         $newRestrictedAttachments,
                         $sSpamBanDuration, // ban duration
+                        $learnFromOutcomingComments, // learn from outcoming comments
+                        $deleteMessagesFromGroups, // delete messages from groups
                         (int)$_GET['g'] // group vk id
                     ]);
 
@@ -103,6 +109,8 @@ else {
                     $vkGroup['maxMessageLength'] = $sMaxMessageLength;
                     $vkGroup['spamBanDuration'] = $sSpamBanDuration;
                     $vkGroup['restrictedAttachments'] = $newRestrictedAttachments;
+                    $vkGroup['learnFromOutcomingComments'] = $learnFromOutcomingComments;
+                    $vkGroup['deleteMessagesFromGroups'] = $deleteMessagesFromGroups;
 
                     ?>
                     <div class="alert alert-success" role="alert">
@@ -122,6 +130,18 @@ else {
                     </div>
                     <div class="card-body">
                         <div class="form-group">
+                            <label class="form-label">
+                                Минимальная длина сообщений
+                                <input type="number" class="form-control" name="minMessageLength" value="<?= $vkGroup['minMessageLength']; ?>" required="" min="0" max="10000">
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Максимальная длина сообщений
+                                <input type="number" class="form-control" name="maxMessageLength" value="<?= $vkGroup['maxMessageLength']; ?>" required="" min="0" max="10000">
+                            </label>
+                        </div>
+                        <div class="form-group">
                             <div class="form-label">Запрещённые медиавложения</div>
                             <div class="custom-controls-stacked">
                                 <?php
@@ -135,7 +155,7 @@ else {
                                     ?>
                                     <label class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" name="restrictedAttachments[]"
-                                               value="<?= $bit ?>"<?= $checked ? 'checked="checked"' : '' ?>>
+                                               value="<?= $bit ?>"<?= $checked ? ' checked="checked"' : '' ?>>
                                         <span class="custom-control-label"><?= $attachment->title ?></span>
                                     </label>
                                     <?php
@@ -147,21 +167,25 @@ else {
                         </div>
                         <div class="form-group">
                             <label class="form-label">
-                                Минимальная длина сообщений
-                                <input type="number" class="form-control" name="minMessageLength" value="<?= $vkGroup['minMessageLength']; ?>" required="">
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">
-                                Максимальная длина сообщений
-                                <input type="number" class="form-control" name="maxMessageLength" value="<?= $vkGroup['maxMessageLength']; ?>" required="">
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">
                                 Длительность бана за спам в секундах или 0, чтобы отключить блокировку пользователей.
                                 <input type="number" class="form-control" name="spamBanDuration" value="<?= $vkGroup['spamBanDuration']; ?>" required="">
                             </label>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-controls-stacked">
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="learnFromOutcomingComments"<?= ((int)$vkGroup['learnFromOutcomingComments'] === 1) ? ' checked="checked"' : '' ?>>
+                                    <span class="custom-control-label">Обучаться на комментариях от имени группы</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-controls-stacked">
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="deleteMessagesFromGroups"<?= ((int)$vkGroup['deleteMessagesFromGroups'] === 1) ? ' checked="checked"' : '' ?>>
+                                    <span class="custom-control-label">Удалять сообщения от других групп</span>
+                                </label>
+                            </div>
                         </div>
                         <div class="card-footer text-right">
                             <button type="submit" class="btn btn-primary">Сохранить</button>

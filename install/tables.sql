@@ -87,8 +87,8 @@ CREATE TABLE `vkGroups` (
     `maxMessageLength` INT UNSIGNED NOT NULL DEFAULT 255,
     `restrictedAttachments` BIGINT UNSIGNED NOT NULL DEFAULT 0, -- bitmask of restricted attachments
     `spamBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
-    `learnFromOutcomingMessages` TINYINT(1) NOT NULL DEFAULT 0,
-    `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 0,
+    `learnFromOutcomingComments` TINYINT(1) NOT NULL DEFAULT 0,
+    `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 

@@ -35,7 +35,7 @@ class CommentChangeHandler {
                 return;
             }
 
-            if ((int)$vkGroup['learnFromOutcomingMessages'] === 1) {
+            if ((int)$vkGroup['learnFromOutcomingComments'] === 1) {
                 // assume it's ham
 
                 $antispam = new TextClassifier();
