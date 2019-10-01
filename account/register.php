@@ -89,7 +89,7 @@ if (
 
         }
         elseif (
-            $role !== Account::ROLE_VISITOR &&
+            $role !== Account::ROLE_USER &&
             $role !== Account::ROLE_SUPER_MODERATOR &&
             $role !== Account::ROLE_EDITOR &&
             $role !== Account::ROLE_ADMIN
@@ -200,8 +200,8 @@ if (
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
-    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico"/>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
     <title>Регистрация нового аккаунта</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
@@ -265,8 +265,8 @@ if (
                                 <div class="form-label">Роль</div>
                                 <div class="custom-controls-stacked">
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" name="role" value="<?= Account::ROLE_VISITOR ?>" checked="">
-                                        <div class="custom-control-label">Наблюдатель</div>
+                                        <input type="radio" class="custom-control-input" name="role" value="<?= Account::ROLE_USER ?>" checked="">
+                                        <div class="custom-control-label">Пользователь</div>
                                     </label>
                                     <label class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" name="role" value="<?= Account::ROLE_SUPER_MODERATOR ?>">

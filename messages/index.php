@@ -23,7 +23,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">
-                Укажите группу
+                Выберите группу
             </h1>
         </div>
         <?php

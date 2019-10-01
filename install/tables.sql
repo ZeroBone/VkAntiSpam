@@ -12,6 +12,7 @@ CREATE TABLE `messages` (
     `vkContext` BIGINT NOT NULL, -- if type == 1, this is the vk post id
     `category` INT UNSIGNED NOT NULL, -- 0 if unknown (probably ham), 1 if we are 100% sure it is ham, 2 if this message was classified as spam
     PRIMARY KEY (`id`),
+    KEY (`groupId`),
     KEY (`type`),
     KEY (`messageHash`),
     KEY (`date`),

@@ -15,7 +15,7 @@ class Account {
     const EMAIL_MAX_LENGTH = 40;
 
     // can only view overall stats and messages
-    const ROLE_VISITOR = 100;
+    const ROLE_USER = 100;
 
     // has moderator priveleges by default in all groups
     const ROLE_SUPER_MODERATOR = 200;

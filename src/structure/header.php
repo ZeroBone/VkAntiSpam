@@ -84,7 +84,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
 
                                     switch (VkAntiSpam::get()->account->getRole()) {
 
-                                        case Account::ROLE_VISITOR:
+                                        case Account::ROLE_USER:
                                             $role = 'Пользователь';
                                             break;
 
