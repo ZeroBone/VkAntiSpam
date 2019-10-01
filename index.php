@@ -39,7 +39,7 @@ SELECT COUNT(*) AS `result` FROM `trainingSet` WHERE `category` = ?
 UNION ALL
 SELECT COUNT(*) AS `result` FROM `words`
 UNION ALL
-SELECT COUNT(*) AS `result` FROM `users`;
+SELECT COUNT(*) AS `result` FROM `vkUsers`;
 ');
 
             $query->execute([
@@ -58,7 +58,7 @@ SELECT COUNT(*) AS `result` FROM `users`;
 
             $wordsCount = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
 
-            $usersCount = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
+            $vkUsersCount = (int)$query->fetch(PDO::FETCH_ASSOC)['result'];
 
             ?>
             <div class="col-6 col-sm-4 col-lg-2">
@@ -104,8 +104,8 @@ SELECT COUNT(*) AS `result` FROM `users`;
             <div class="col-6 col-sm-4 col-lg-2">
                 <div class="card">
                     <div class="card-body p-3 text-center">
-                        <div class="h1 m-0"><?= number_format($usersCount, 0, '.', ' ') ?></div>
-                        <div class="text-muted mb-4">Пользователей платформы</div>
+                        <div class="h1 m-0"><?= number_format($vkUsersCount, 0, '.', ' ') ?></div>
+                        <div class="text-muted mb-4">Уникальных пользователей</div>
                     </div>
                 </div>
             </div>
