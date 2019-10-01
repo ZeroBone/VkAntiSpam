@@ -2,8 +2,7 @@
 
 namespace VkAntiSpam\Account;
 
-
-use mysql_xdevapi\Exception;
+use \Exception;
 use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\VkAntiSpam;
 
@@ -15,9 +14,17 @@ class Account {
     const PASSWORD_MAX_LENGTH = 50;
     const EMAIL_MAX_LENGTH = 40;
 
+    // can only view overall stats and messages
     const ROLE_VISITOR = 100;
-    const ROLE_MODERATOR = 200;
+
+    // has moderator priveleges by default in all groups
+    const ROLE_SUPER_MODERATOR = 200;
+
+    // has editor priveleges by default in all groups
     const ROLE_EDITOR = 300;
+
+    // can register new platform accounts
+    // can add new groups
     const ROLE_ADMIN = 400;
 
     private $checked = false;

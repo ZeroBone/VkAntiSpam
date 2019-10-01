@@ -87,10 +87,12 @@ CREATE TABLE `vkGroups` (
     `maxMessageLength` INT UNSIGNED NOT NULL DEFAULT 255,
     `restrictedAttachments` BIGINT UNSIGNED NOT NULL DEFAULT 0, -- bitmask of restricted attachments
     `spamBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
+    `learnFromOutcomingMessages` TINYINT(1) NOT NULL DEFAULT 0,
+    `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `vkGroupManagers` ( -- TODO
+CREATE TABLE `vkGroupManagers` (
     `vkGroupId` BIGINT NOT NULL,
     `userId` BIGINT UNSIGNED NOT NULL,
     `role` INT NOT NULL,
@@ -100,14 +102,14 @@ CREATE TABLE `vkGroupManagers` ( -- TODO
     KEY (`userId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `vkMessageWhitelist` ( -- TODO
+CREATE TABLE `vkMessageWhitelist` (
     `vkGroupId` BIGINT NOT NULL,
     `vkId` BIGINT NOT NULL, -- user or group id
     KEY (`vkGroupId`),
     KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
-CREATE TABLE `vkPostWhitelist` ( -- TODO
+CREATE TABLE `vkPostWhitelist` (
     `vkGroupId` BIGINT NOT NULL,
     `postVkId` BIGINT NOT NULL,
     KEY (`vkGroupId`),

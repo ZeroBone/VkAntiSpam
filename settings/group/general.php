@@ -20,7 +20,7 @@ if (!$vas->account->loggedIn()) {
     exit(0);
 }
 
-if (!$vas->account->isRole(Account::ROLE_MODERATOR)) {
+if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
     Utils::redirect('/account/login');
     exit(0);
 }
@@ -44,7 +44,7 @@ if (!isset($vkGroup['vkId'])) {
             <div class="col-12">
                 <div class="alert alert-danger" role="alert">
                     <button type="button" class="close" data-dismiss="alert"></button>
-                    Указанная Вами группа удалена, либо у Вас недостаточно прав для изменения её настроек.
+                    Указанная Вами группа отсутствует - скорее всего Вы перешли по сломанной ссылке.
                 </div>
             </div>
         </div>
@@ -52,6 +52,7 @@ if (!isset($vkGroup['vkId'])) {
     <?php
 
 }
+// TODO: verify that user can modify settings
 else {
 
     ?>

@@ -115,30 +115,46 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                         $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                        $query = $db->prepare('INSERT INTO `vkGroups` (vkId, `name`, secret, token, adminVkId, adminVkToken, confirmationToken) VALUES (?,?,?,?,?,?,?);');
+                        $query = $db->prepare('SELECT `vkId` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
                         $query->execute([
-                            $vkId,
-                            $name,
-                            $secret,
-                            $token,
-                            $adminVkId,
-                            $adminVkToken,
-                            $confirmationToken
+                            $vkId
                         ]);
 
-                        $query = $db->prepare('INSERT INTO `vkGroupManagers` (`vkGroupId`, `userId`, `role`) VALUES (?,?,?);');
-                        $query->execute([
-                            $vkId,
-                            $vas->account->getId(),
-                            GroupRole::ADMIN // assign the creator of the group admin priveleges
-                        ]);
+                        if (isset($query->fetch(PDO::FETCH_ASSOC)['vkId'])) {
+                            ?>
+                            <div class="alert alert-danger" role="alert">
+                                <button type="button" class="close" data-dismiss="alert"></button>
+                                Данная группа уже существует в системе.
+                            </div>
+                            <?php
+                        }
+                        else {
 
-                        ?>
-                        <div class="alert alert-success" role="alert">
-                            <button type="button" class="close" data-dismiss="alert"></button>
-                            Группа успешно добавлена.
-                        </div>
-                        <?php
+                            $query = $db->prepare('INSERT INTO `vkGroups` (vkId, `name`, secret, token, adminVkId, adminVkToken, confirmationToken) VALUES (?,?,?,?,?,?,?);');
+                            $query->execute([
+                                $vkId,
+                                $name,
+                                $secret,
+                                $token,
+                                $adminVkId,
+                                $adminVkToken,
+                                $confirmationToken
+                            ]);
+
+                            $query = $db->prepare('INSERT INTO `vkGroupManagers` (`vkGroupId`, `userId`, `role`) VALUES (?,?,?);');
+                            $query->execute([
+                                $vkId,
+                                $vas->account->getId(),
+                                GroupRole::ADMIN // assign the creator of the group admin priveleges
+                            ]);
+
+                            ?>
+                            <div class="alert alert-success" role="alert">
+                                <button type="button" class="close" data-dismiss="alert"></button>
+                                Группа успешно добавлена.
+                            </div>
+                            <?php
+                        }
 
                     }
 

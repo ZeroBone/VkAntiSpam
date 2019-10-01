@@ -6,6 +6,12 @@ use CURLFile;
 
 class VkUtils {
 
+    const BAN_REASON_OTHER = 0;
+    const BAN_REASON_SPAM = 1;
+    const BAN_REASON_INSULT = 2;
+    const BAN_REASON_OBSCENE = 3;
+    const BAN_REASON_OFFTOPIC = 4;
+
     public static function callVkApi($access_token, $method, $params, $execute=false, $call_method='POST') {
 
         $url = 'https://api.vk.com/method/';
@@ -118,7 +124,7 @@ class VkUtils {
 
         $parameters = [
             'group_id' => $groupId,
-            'user_id' => $userId,
+            'owner_id' => $userId,
             'reason' => $reason,
             'comment' => $banComment,
             'comment_visible' => $banCommentVisible
@@ -130,7 +136,7 @@ class VkUtils {
 
         }
 
-        return static::callVkApi($token, 'groups.banUser', $parameters);
+        return static::callVkApi($token, 'groups.ban', $parameters);
 
     }
 

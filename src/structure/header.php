@@ -88,7 +88,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                             $role = 'Пользователь';
                                             break;
 
-                                        case Account::ROLE_MODERATOR:
+                                        case Account::ROLE_SUPER_MODERATOR:
                                             $role = 'Модератор';
                                             break;
 
@@ -141,7 +141,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                     <a href="/antispam/test" class="dropdown-item">Проверка сообщений</a>
                                     <?php
 
-                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_MODERATOR)) {
+                                    if (VkAntiSpam::get()->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
                                         ?>
                                         <a href="/antispam/train" class="dropdown-item">Обучение</a>
                                         <?php
@@ -150,7 +150,7 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
                                     ?>
                                 </div>
                             </li>
-                            <?php if (VkAntiSpam::get()->account->isRole(Account::ROLE_MODERATOR)): ?>
+                            <?php if (VkAntiSpam::get()->account->isRole(Account::ROLE_SUPER_MODERATOR)): ?>
                             <li class="nav-item">
                                 <a href="javascript:void(0)" class="nav-link" data-toggle="dropdown"><i class="fe fe-settings"></i> Настройки</a>
                                 <div class="dropdown-menu dropdown-menu-arrow">

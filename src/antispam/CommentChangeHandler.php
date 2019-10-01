@@ -29,16 +29,20 @@ class CommentChangeHandler {
 
         if ($commentAuthor === -$vkGroup['vkId']) {
             // don't check messages from the group
-            // assume it's ham
 
             if (StringUtils::getStringLength($commentText) > 250 || $commentText === '') {
                 // empty comment
                 return;
             }
 
-            $antispam = new TextClassifier();
+            if ((int)$vkGroup['learnFromOutcomingMessages'] === 1) {
+                // assume it's ham
 
-            $antispam->learn($commentText, TextClassifier::CATEGORY_HAM);
+                $antispam = new TextClassifier();
+
+                $antispam->learn($commentText, TextClassifier::CATEGORY_HAM);
+
+            }
 
             return;
 
@@ -73,7 +77,7 @@ class CommentChangeHandler {
 
         }
 
-        if (StringUtils::getStringLength($commentText) > 250) {
+        if (StringUtils::getStringLength($commentText) > (int)$vkGroup['maxMessageLength']) {
 
             VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
@@ -81,9 +85,18 @@ class CommentChangeHandler {
 
         }
 
-        if ($commentAuthor < 0) {
+        if (StringUtils::getStringLength($commentText) < (int)$vkGroup['minMessageLength']) {
+
+            VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+            return;
+
+        }
+
+        if ((int)$vkGroup['deleteMessagesFromGroups'] === 1 && $commentAuthor < 0) {
 
             // message from group
+            // TODO: search in whitelist
 
             VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
@@ -177,17 +190,32 @@ class CommentChangeHandler {
             ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
         ]);
 
+        $messageId = (int)$db->lastInsertId();
+
         if ($category === TextClassifier::CATEGORY_SPAM) {
 
             VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
-            $messageId = (int)$db->lastInsertId();
+            if ((int)$vkGroup['spamBanDuration'] !== 0) {
 
-            $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
-            $query->execute([
-                $messageId,
-                time()
-            ]);
+                $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
+                $query->execute([
+                    $messageId,
+                    time()
+                ]);
+
+                $banId = (int)$db->lastInsertId();
+
+                VkUtils::banGroupUser(
+                    $vkGroup['adminVkToken'],
+                    $vkGroup['vkId'],
+                    $commentAuthor,
+                    (int)$vkGroup['spamBanDuration'],
+                    VkUtils::BAN_REASON_SPAM,
+                    'Автоматический бан #' . $banId . '. Если Вы считаете, что бан несправедливый, обращайтесь к vk.me/alxmay.'
+                );
+
+            }
 
         }
 

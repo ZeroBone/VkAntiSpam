@@ -90,7 +90,7 @@ if (
         }
         elseif (
             $role !== Account::ROLE_VISITOR &&
-            $role !== Account::ROLE_MODERATOR &&
+            $role !== Account::ROLE_SUPER_MODERATOR &&
             $role !== Account::ROLE_EDITOR &&
             $role !== Account::ROLE_ADMIN
         ) {
@@ -269,7 +269,7 @@ if (
                                         <div class="custom-control-label">Наблюдатель</div>
                                     </label>
                                     <label class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" name="role" value="<?= Account::ROLE_MODERATOR ?>">
+                                        <input type="radio" class="custom-control-input" name="role" value="<?= Account::ROLE_SUPER_MODERATOR ?>">
                                         <div class="custom-control-label">Модератор</div>
                                     </label>
                                     <label class="custom-control custom-radio">

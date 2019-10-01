@@ -14,7 +14,7 @@ if (!$vas->account->loggedIn()) {
     exit(0);
 }
 
-if (!$vas->account->isRole(Account::ROLE_MODERATOR)) {
+if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
     Utils::redirect('/account/login');
     exit(0);
 }
