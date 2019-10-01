@@ -85,7 +85,9 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                     public function getPageUrl($pageNumber) {
                         return '/settings/groups/?p=' . $pageNumber;
                     }
+
                 }
+
             );
 
             $paginator->printPagination();
