@@ -1,5 +1,6 @@
 <?php
 
+use VkAntiSpam\Account\Account;
 use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
@@ -32,7 +33,15 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
             $action = (int)$_POST['action'];
 
-            if (
+            if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
+                ?>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    У Вас недостаточно прав для модерирования сообщений.
+                </div>
+                <?php
+            }
+            elseif (
                 $action !== ACTION_LEARN_HAM &&
                 $action !== ACTION_DELELE &&
                 $action !== ACTION_DELELE_AND_LEARN &&
@@ -124,7 +133,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         // delete comments from vk
                         while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
-                            VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], $row['adminVkToken']);
+                            VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
 
                         }
 
@@ -142,6 +151,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <?php
 
                         break;
+
+
 
                 }
 
