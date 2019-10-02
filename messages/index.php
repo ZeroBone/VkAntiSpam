@@ -1,12 +1,19 @@
 <?php
 
+use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
 use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\Utils\Utils;
+use VkAntiSpam\Utils\VkUtils;
 use VkAntiSpam\VkAntiSpam;
 
 require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
+
+define('ACTION_DELELE_AND_LEARN', 3);
+define('ACTION_DELELE', 2);
+define('ACTION_DELELE_AND_BAN', 4);
+define('ACTION_LEARN_HAM', 1);
 
 $vas = VkAntiSpam::web();
 
@@ -19,10 +26,139 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 ?>
     <div class="container">
+        <?php
+
+        if (isset($_POST['action'])) {
+
+            $action = (int)$_POST['action'];
+
+            if (
+                $action !== ACTION_LEARN_HAM &&
+                $action !== ACTION_DELELE &&
+                $action !== ACTION_DELELE_AND_LEARN &&
+                $action !== ACTION_DELELE_AND_BAN
+            ) {
+
+                ?>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    Ошибка! Некорректный запрос.
+                </div>
+                <?php
+
+            }
+            elseif (!isset($_POST['selectedMessages'])) {
+
+                ?>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    Вы не выбрали ни одного сообщения.
+                </div>
+                <?php
+
+            }
+            elseif (empty((array)$_POST['selectedMessages']) || count((array)$_POST['selectedMessages']) > 50) {
+
+                ?>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    Вы не выбрали ни одного сообщения (запрос некорректный).
+                </div>
+                <?php
+
+            }
+            else {
+
+                $selectedMessages = (array)$_POST['selectedMessages'];
+
+                $selectedMessages = array_map(function ($el) {
+                    return (int)$el;
+                }, $selectedMessages);
+
+                $db = VkAntiSpam::get()->getDatabaseConnection();
+
+                switch ($action) {
+
+                    case ACTION_LEARN_HAM:
+
+                        $query = $db->query('SELECT `message` FROM `messages` WHERE `id` IN(' .
+                            implode(',', $selectedMessages)
+                            . ');');
+
+                        $antispam = new TextClassifier();
+
+                        while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                            $antispam->learn($row['message'], TextClassifier::CATEGORY_HAM);
+
+                        }
+
+                        // we are 100% sure is is ham
+
+                        $query = $db->prepare(
+                                'UPDATE `messages` SET `category` = ? WHERE `id` IN(' .
+                                implode(',', $selectedMessages) . ');');
+
+                        $query->execute([
+                            TextClassifier::CATEGORY_HAM
+                        ]);
+
+                        ?>
+                        <div class="alert alert-success" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            <?= count($selectedMessages); ?> сообщений были сохранены как не-спам.
+                        </div>
+                        <?php
+
+                        break;
+
+                    case ACTION_DELELE:
+
+                        // we just have to delete the comment
+
+                        $query = $db->query(
+                                'SELECT `id`, `groupId`, `vkContext`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `messages`.`id` IN(' .
+                                implode(',', $selectedMessages) .
+                                ') AND `messages`.`groupId` = `vkGroups`.`vkId`;');
+
+                        // delete comments from vk
+                        while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                            VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], $row['adminVkToken']);
+
+                        }
+
+                        // now delete the comments from the database
+
+                        $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN(' .
+                            implode(',', $selectedMessages) .
+                            ') LIMIT 50;');
+
+                        ?>
+                        <div class="alert alert-success" role="alert">
+                            <button type="button" class="close" data-dismiss="alert"></button>
+                            <?= count($selectedMessages); ?> сообщений были удалены.
+                        </div>
+                        <?php
+
+                        break;
+
+                }
+
+
+                // echo json_encode($selectedMessages);
+
+            }
+
+        }
+
+        ?>
         <div class="row">
             <div class="col-12">
-                <form method="post" action="https://httpbin.org/post">
+                <form method="post">
                     <?php
+
+                    // action="https://httpbin.org/post"
 
                     $currentPage = 1;
 
@@ -54,7 +190,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                         <td><?= $currentRow['id']; ?></td>
                                         <td>
                                             <label class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" name="selectedMessages" value="<?= $currentRow['id']; ?>">
+                                                <input type="checkbox" class="custom-control-input" name="selectedMessages[]" value="<?= $currentRow['id']; ?>">
                                                 <div class="custom-control-label"></div>
                                             </label>
                                         </td>
@@ -116,27 +252,27 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                 <div class="custom-switches-stacked">
                                     <label class="custom-switch">
                                         <div class="w-4 h-4 bg-danger rounded mr-4"></div>
-                                        <input type="radio" name="action" value="1" class="custom-switch-input">
+                                        <input type="radio" name="action" value="<?= ACTION_DELELE_AND_LEARN; ?>" class="custom-switch-input">
                                         <span class="custom-switch-indicator"></span>
                                         <span class="custom-switch-description">
-                                            Удалить выбранные сообщения и запомнить их как спам
+                                            Удалить выбранные сообщения, запомнить их как спам и, если необходимо, заблокировать пользователей
                                         </span>
                                     </label>
                                     <label class="custom-switch">
                                         <div class="w-4 h-4 bg-primary rounded mr-4"></div>
-                                        <input type="radio" name="action" value="2" class="custom-switch-input" checked="">
+                                        <input type="radio" name="action" value="<?= ACTION_DELELE; ?>" class="custom-switch-input" checked="">
                                         <span class="custom-switch-indicator"></span>
                                         <span class="custom-switch-description">Удалить выбранные сообщения</span>
                                     </label>
                                     <label class="custom-switch">
                                         <div class="w-4 h-4 bg-warning rounded mr-4"></div>
-                                        <input type="radio" name="action" value="2" class="custom-switch-input">
+                                        <input type="radio" name="action" value="<?= ACTION_DELELE_AND_BAN; ?>" class="custom-switch-input">
                                         <span class="custom-switch-indicator"></span>
                                         <span class="custom-switch-description">Удалить выбранные сообщения и заблокировать пользователей</span>
                                     </label>
                                     <label class="custom-switch">
                                         <div class="w-4 h-4 bg-success rounded mr-4"></div>
-                                        <input type="radio" name="action" value="3" class="custom-switch-input">
+                                        <input type="radio" name="action" value="<?= ACTION_LEARN_HAM; ?>" class="custom-switch-input">
                                         <span class="custom-switch-indicator"></span>
                                         <span class="custom-switch-description">Запомнить выбранные сообщения как не-спам</span>
                                     </label>
