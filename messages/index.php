@@ -1,8 +1,8 @@
 <?php
 
-use VkAntiSpam\Account\Account;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
+use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\Utils\Utils;
 use VkAntiSpam\VkAntiSpam;
 
@@ -11,38 +11,14 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 $vas = VkAntiSpam::web();
 
 if (!$vas->account->loggedIn()) {
-
     Utils::redirect('/account/login');
     exit(0);
-
 }
 
 require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 ?>
     <div class="container">
-        <div class="page-header">
-            <h1 class="page-title">
-                Выберите группу
-            </h1>
-        </div>
-        <?php
-
-        if ($vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
-            ?>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <a href="/messages/all" class="btn btn-primary btn-block">Все сообщения</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php
-        }
-
-        ?>
         <div class="row">
             <div class="col-12">
                 <?php
@@ -55,11 +31,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                $query = $db->prepare('SELECT COUNT(*) AS `count` FROM `vkGroupManagers` WHERE `userId` = ?;');
-                $query->execute([
-                    $vas->account->getId()
-                ]);
-
+                $query = $db->query('SELECT COUNT(*) AS `count` FROM `messages` WHERE `category` = 0;');
                 $totalItems = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 
                 $paginator = new Paginator(
@@ -72,22 +44,19 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                             $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                            $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-
-                            $query = $db->prepare('SELECT `vkGroupManagers`.`vkGroupId`, `vkGroups`.`name` FROM `vkGroupManagers`, `vkGroups` WHERE `vkGroupManagers`.`userId` = ? AND `vkGroupManagers`.`vkGroupId` = `vkGroups`.`vkId` ORDER BY `vkGroupId` ASC LIMIT 50 OFFSET ?;');
-                            $query->execute([
-                                VkAntiSpam::get()->account->getId(),
-                                $offset
-                            ]);
+                            $query = $db->query('SELECT * FROM `messages` WHERE `category` = 0 ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
 
                             while (($currentRow = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
                                 ?>
                                 <tr>
-                                    <td><?= $currentRow['name']; ?></td>
+                                    <td><?= $currentRow['id']; ?></td>
+                                    <td class="d-none d-sm-table-cell"><?= date('d.m.Y H:i:s', (int)$currentRow['date']); ?></td>
+                                    <td><?= StringUtils::escapeHTML($currentRow['message']); ?></td>
                                     <td class="d-none d-md-table-cell">
-                                        <a class="btn btn-success btn-sm" href="/messages/group?g=<?= $currentRow['vkGroupId']; ?>">Сообщения этой группы</a>
-                                        <a class="btn btn-secondary btn-sm" href="https://vk.com/public<?= $currentRow['vkGroupId']; ?>" target="_blank">Перейти в группу</a>
+                                        <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['vkContext']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Стена</a>
+                                        <a class="btn btn-danger btn-sm" href="javascript:void(0)">Это спам</a>
+                                        <a class="btn btn-success btn-sm" href="javascript:void(0)">Это не спам</a>
                                     </td>
                                 </tr>
                                 <?php
@@ -97,11 +66,9 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         }
 
                         public function getPageUrl($pageNumber) {
-                            return '/messages/?p=' . $pageNumber;
+                            return '/messages/all?p=' . $pageNumber;
                         }
-
                     }
-
                 );
 
                 $paginator->printPagination();
@@ -111,7 +78,9 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                     <table class="table card-table table-vcenter">
                         <thead>
                         <tr>
-                            <th>Группа</th>
+                            <th>#</th>
+                            <th class="d-none d-sm-table-cell">Дата</th>
+                            <th>Сообщение</th>
                             <th class="d-none d-md-table-cell">Действия</th>
                         </tr>
                         </thead>

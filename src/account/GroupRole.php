@@ -2,10 +2,6 @@
 
 namespace VkAntiSpam\Account;
 
-use \Exception;
-use PDO;
-use VkAntiSpam\VkAntiSpam;
-
 class GroupRole {
 
     // can only view group messages and stats, without any modifications
@@ -22,7 +18,7 @@ class GroupRole {
 
     private function __construct() {}
 
-    public static function isGroupModerator($vkGroupId, $userId) {
+    /*public static function isGroupModerator($vkGroupId, $userId) {
 
         if (!VkAntiSpam::get()->account->loggedIn()) {
             throw new Exception('isGroupModerator() without authentication check');
@@ -44,6 +40,6 @@ class GroupRole {
 
         return (int)$query->fetch(PDO::FETCH_ASSOC)['count'] >= 1;
 
-    }
+    }*/
 
 }
