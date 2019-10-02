@@ -21,6 +21,7 @@ paths: {
 'circle-progress': 'assets/js/vendors/circle-progress.min',
 }
 });
+
 window.tabler = {
 colors: {
 'blue': '#467fcf',
@@ -124,3 +125,12 @@ colors: {
 }
 };
 require(['core']);
+
+require.config({
+    shim: {
+        'notie': ['core'],
+    },
+    paths: {
+        'notie': 'assets/js/vendors/notie',
+    }
+});

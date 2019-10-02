@@ -17,11 +17,12 @@ if (!defined('SECURITY_CANARY')) {
                 </div>
             </div>
             <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                Copyright © <?= date('Y') ?> <a href="https://github.com/ZeroBone">Александр Майоров</a>. Все права защищены.
+                Copyright &copy; <?= date('Y') ?> <a href="https://github.com/ZeroBone">Александр Майоров</a>. Все права защищены.
             </div>
         </div>
     </div>
 </footer>
+<script type="text/javascript" src="/assets/js/vendors/notie.js" defer></script>
 </div>
 </body>
 </html>

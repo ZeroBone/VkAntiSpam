@@ -48,7 +48,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                 ) {
 
                     $vkId = (int)$_POST['vkId'];
-                    $name = (string)$_POST['name'];
+                    $name = StringUtils::escapeHTML((string)$_POST['name']);
                     $secret = (string)$_POST['secret'];
                     $token = (string)$_POST['token'];
                     $adminVkId = (int)$_POST['adminVkId'];

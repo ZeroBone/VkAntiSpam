@@ -72,6 +72,7 @@ CREATE TABLE `vkUsers` (
    `photo_100` VARCHAR(255) NOT NULL,
    `photo_200` VARCHAR(255) NOT NULL,
    `photo_max` VARCHAR(255) NOT NULL,
+   `unbans` INT UNSIGNED NOT NULL DEFAULT 0,
    PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8;
 

@@ -44,7 +44,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                             $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                            $query = $db->query('SELECT * FROM `messages` WHERE `category` = 0 ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
+                            $query = $db->query('SELECT `messages`.*, `vkGroups`.`name` AS `vkGroupName` FROM `messages`, `vkGroups` WHERE `category` = 0 ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
 
                             while (($currentRow = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
@@ -52,11 +52,23 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                 <tr>
                                     <td><?= $currentRow['id']; ?></td>
                                     <td class="d-none d-sm-table-cell"><?= date('d.m.Y H:i:s', (int)$currentRow['date']); ?></td>
-                                    <td><?= StringUtils::escapeHTML($currentRow['message']); ?></td>
-                                    <td class="d-none d-md-table-cell">
+                                    <td class="d-none d-sm-table-cell"><a href="https://vk.com/public<?= $currentRow['groupId']; ?>" target="_blank"><?= $currentRow['vkGroupName']; ?></a></td>
+                                    <td class="d-none d-md-table-cell"><?= StringUtils::escapeHTML($currentRow['message']); ?></td>
+                                    <td class="d-none d-sm-table-cell">
+                                        <a class="btn btn-danger btn-sm" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Аналогичные комментарии будут удаляться">
+                                            <i class="fe fe-minus-circle mr-2"></i>
+                                            Спам
+                                        </a>
+                                        <a class="btn btn-success btn-sm" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Аналогичные комментарии не будут удаляться">
+                                            <i class="fe fe-check mr-2"></i>
+                                            Не спам
+                                        </a>
+                                        <br>
                                         <a class="btn btn-secondary btn-sm" href="https://vk.com/wall-<?= $currentRow['groupId']; ?>_<?= $currentRow['vkContext']; ?>?reply=<?= $currentRow['vkId']; ?>" target="_blank">Стена</a>
-                                        <a class="btn btn-danger btn-sm" href="javascript:void(0)">Это спам</a>
-                                        <a class="btn btn-success btn-sm" href="javascript:void(0)">Это не спам</a>
+                                        <a class="btn btn-warning btn-sm" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="Только этот комментарий будет удалён.">
+                                            <i class="fe fe-trash mr-2"></i>
+                                            Удалить
+                                        </a>
                                     </td>
                                 </tr>
                                 <?php
@@ -66,7 +78,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         }
 
                         public function getPageUrl($pageNumber) {
-                            return '/messages/all?p=' . $pageNumber;
+                            return '/messages/?p=' . $pageNumber;
                         }
                     }
                 );
@@ -80,8 +92,9 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <tr>
                             <th>#</th>
                             <th class="d-none d-sm-table-cell">Дата</th>
-                            <th>Сообщение</th>
-                            <th class="d-none d-md-table-cell">Действия</th>
+                            <th class="d-none d-sm-table-cell">Группа</th>
+                            <th class="d-none d-md-table-cell">Сообщение</th>
+                            <th class="d-none d-sm-table-cell">Действия</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -98,6 +111,15 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                 $paginator->printPagination();
 
                 ?>
+                <script>
+                    window.addEventListener("load", function () {
+                        notie.alert({
+                            type: 1,
+                            text: "Комментарий удалён",
+                            time: 2
+                        });
+                    });
+                </script>
             </div>
         </div>
     </div>

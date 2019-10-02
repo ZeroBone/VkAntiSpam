@@ -20,7 +20,7 @@ class TextClassifier {
 
     private function tokenize($text) {
 
-        $filteredWords = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто'];
+        $filteredWords = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто', 'так'];
         // TODO: get filtered word from config
 
         $text = preg_replace('/[^a-zA-Z0-9А-ЯЁа-яё ]+/u', '', $text);
