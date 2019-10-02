@@ -59,8 +59,6 @@ if (!VkAntiSpam::get()->account->loggedIn()) {
             }
         });
     </script>-->
-    <!-- notie -->
-    <link href="/assets/css/notie.css" rel="stylesheet">
 </head>
 <body class="">
 <div class="page">

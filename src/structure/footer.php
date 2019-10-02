@@ -22,7 +22,6 @@ if (!defined('SECURITY_CANARY')) {
         </div>
     </div>
 </footer>
-<script type="text/javascript" src="/assets/js/vendors/notie.js" defer></script>
 </div>
 </body>
 </html>
