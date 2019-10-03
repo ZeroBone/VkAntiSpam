@@ -69,12 +69,14 @@ else {
                 if (
                     isset($_POST['minMessageLength']) &&
                     isset($_POST['maxMessageLength']) &&
-                    isset($_POST['spamBanDuration'])
+                    isset($_POST['spamBanDuration']) &&
+                    isset($_POST['adminBanDuration'])
                 ) {
 
                     $sMinMessageLength = min(max((int)$_POST['minMessageLength'], 0), 10000);
                     $sMaxMessageLength = min(max((int)$_POST['maxMessageLength'], 0), 10000);
                     $sSpamBanDuration = max((int)$_POST['spamBanDuration'], 0);
+                    $sAdminBanDuration = max((int)$_POST['adminBanDuration'], 0);
 
                     $restrictedAttachments = [];
 
@@ -94,12 +96,13 @@ else {
 
                     $deleteMessagesFromGroups = isset($_POST['deleteMessagesFromGroups']) ? 1 : 0;
 
-                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `learnFromOutcomingComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
+                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
                     $query->execute([
                         $sMinMessageLength, // min message length
                         $sMaxMessageLength, // max message length
                         $newRestrictedAttachments,
                         $sSpamBanDuration, // ban duration
+                        $sAdminBanDuration, // admin ban duration
                         $learnFromOutcomingComments, // learn from outcoming comments
                         $deleteMessagesFromGroups, // delete messages from groups
                         (int)$_GET['g'] // group vk id
@@ -108,6 +111,7 @@ else {
                     $vkGroup['minMessageLength'] = $sMinMessageLength;
                     $vkGroup['maxMessageLength'] = $sMaxMessageLength;
                     $vkGroup['spamBanDuration'] = $sSpamBanDuration;
+                    $vkGroup['adminBanDuration'] = $sAdminBanDuration;
                     $vkGroup['restrictedAttachments'] = $newRestrictedAttachments;
                     $vkGroup['learnFromOutcomingComments'] = $learnFromOutcomingComments;
                     $vkGroup['deleteMessagesFromGroups'] = $deleteMessagesFromGroups;
@@ -167,8 +171,14 @@ else {
                         </div>
                         <div class="form-group">
                             <label class="form-label">
-                                Длительность бана за спам в секундах или 0, чтобы отключить блокировку пользователей.
+                                Длительность автоматического бана за спам в секундах или 0, чтобы отключить блокировку пользователей.
                                 <input type="number" class="form-control" name="spamBanDuration" value="<?= $vkGroup['spamBanDuration']; ?>" required="">
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Длительность бана в секундах или 0, чтобы отключить блокировку пользователей по запросу.
+                                <input type="number" class="form-control" name="adminBanDuration" value="<?= $vkGroup['adminBanDuration']; ?>" required="">
                             </label>
                         </div>
                         <div class="form-group">

@@ -23,9 +23,11 @@ CREATE TABLE `bans` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `message` BIGINT UNSIGNED NOT NULL, -- message the user was banned for
     `date` BIGINT UNSIGNED NOT NULL, -- ban date
-    `automatic` TINYINT(1) UNSIGNED NOT NULL,
+    `endDate` BIGINT UNSIGNED NOT NULL, -- 0 if ban is permanent
+    `userId` BIGINT UNSIGNED NOT NULL, -- user that banned, 0 if the ban was automatic
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`message`) REFERENCES `messages`(`id`)
+    FOREIGN KEY (`message`) REFERENCES `messages`(`id`),
+    FOREIGN KEY (`userId`) REFERENCES `users`(`id`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `trainingSet` (
@@ -90,6 +92,7 @@ CREATE TABLE `vkGroups` (
     `maxMessageLength` INT UNSIGNED NOT NULL DEFAULT 255,
     `restrictedAttachments` BIGINT UNSIGNED NOT NULL DEFAULT 0, -- bitmask of restricted attachments
     `spamBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
+    `adminBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
     `learnFromOutcomingComments` TINYINT(1) NOT NULL DEFAULT 0,
     `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (`vkId`)

@@ -186,7 +186,7 @@ class CommentChangeHandler {
             time(), // date
             isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
             isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
-            (int)$this->object['post_id'], // context
+            (int)$this->object['post_id'], // vk context
             ($category === TextClassifier::CATEGORY_HAM) ? TextClassifier::CATEGORY_INVALID : TextClassifier::CATEGORY_SPAM // category
         ]);
 
@@ -198,10 +198,12 @@ class CommentChangeHandler {
 
             if ((int)$vkGroup['spamBanDuration'] !== 0) {
 
-                $query = $db->prepare('INSERT INTO `bans` (`message`, `date`) VALUES (?,?);');
+                $query = $db->prepare('INSERT INTO `bans` (`message`, `date`, `endDate`, `userId`) VALUES (?,?,?,?);');
                 $query->execute([
                     $messageId,
-                    time()
+                    time(),
+                    time() + (int)$vkGroup['spamBanDuration'],
+                    0
                 ]);
 
                 $banId = (int)$db->lastInsertId();

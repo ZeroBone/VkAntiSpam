@@ -29,7 +29,17 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
     <div class="container">
         <?php
 
-        if (isset($_POST['selectedMessages'])) {
+        if (isset($_POST['selectedMessages']) && !$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
+
+            ?>
+            <div class="alert alert-danger" role="alert">
+                <button type="button" class="close" data-dismiss="alert"></button>
+                У Вас недостаточно прав для осуществления модерирования.
+            </div>
+            <?php
+
+        }
+        elseif (isset($_POST['selectedMessages'])) {
 
             $toLearnSpam = [];
             $toLearnHam = [];
@@ -97,7 +107,23 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                 ?>
                 <div class="alert alert-success" role="alert">
                     <button type="button" class="close" data-dismiss="alert"></button>
-                    <?= count($toLearnHam); ?> сообщений были сохранены как не-спам.
+                    <?= count($toLearnHam); ?> сообщений были сохранены как <b>не-спам</b>.
+                </div>
+                <?php
+
+            }
+
+            if (!empty($toDeleteAndBan) && !$vas->account->isRole(Account::ROLE_EDITOR)) {
+
+                $toDelete = array_merge($toDelete, $toDeleteAndBan);
+
+                $toDeleteAndBan = [];
+
+                ?>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    Для того, чтобы удалять и блокировать пользователей необходимо обладать правами редактора, которых у Вас нет.<br>
+                    Выбранные Вами будут удалены без блокировки.
                 </div>
                 <?php
 
@@ -126,18 +152,108 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                 ?>
                 <div class="alert alert-success" role="alert">
                     <button type="button" class="close" data-dismiss="alert"></button>
-                    <?= count($toDelete); ?> сообщений были удалены.
+                    <?= count($toDelete); ?> сообщений были <b>удалены</b>.
                 </div>
                 <?php
 
             }
 
             if (!empty($toLearnSpam)) {
-                // TODO
+
+                // delete comments and mark them as spam
+
+                $gluedMessages = implode(',', $toLearnSpam);
+
+                $query = $db->query(
+                    'SELECT `messages`.`id`, `messages`.`groupId`, `messages`.`vkContext`, `messages`.`message`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `messages`.`id` IN('.$gluedMessages.') AND `messages`.`groupId` = `vkGroups`.`vkId`;');
+
+                // delete comments from vk
+
+                $antispam = new TextClassifier();
+
+                while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                    $antispam->learn($row['message'], TextClassifier::CATEGORY_SPAM);
+
+                    VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
+
+                }
+
+                // we are 100% sure is is ham
+
+                $query = $db->prepare(
+                    'UPDATE `messages` SET `category` = ? WHERE `id` IN('.$gluedMessages.');');
+
+                $query->execute([
+                    TextClassifier::CATEGORY_SPAM
+                ]);
+
+                ?>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    <?= count($toLearnSpam); ?> сообщений были <b>удалены</b> и сохранены как <b>спам</b>.
+                </div>
+                <?php
+
             }
 
             if (!empty($toDeleteAndBan)) {
-                // TODO
+
+                $gluedMessages = implode(',', $toDeleteAndBan);
+
+                $query = $db->query(
+                    'SELECT `id`, `groupId`, `vkContext`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `messages`.`id` IN('.$gluedMessages.') AND `messages`.`groupId` = `vkGroups`.`vkId`;');
+
+                // delete comments from vk
+                while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                    VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
+
+                }
+
+                // 'SELECT `author` FROM `messages` WHERE `id` IN(1,2,3,4,5,6) GROUP BY `author`';
+                // SELECT `author`, `groupId`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `id` IN(1,2,3,4,5,6) AND `groupId` = `vkGroups`.`vkId` AND `vkGroups`.`spamBanDuration` = 0 GROUP BY `author`, `groupId`;
+
+                $query = $db->query('SELECT MAX(`id`), `author`, `groupId`, `vkGroups`.`adminVkToken`, `vkGroups`.`adminBanDuration` FROM `messages`, `vkGroups` WHERE `id` IN('.$gluedMessages.') AND `groupId` = `vkGroups`.`vkId` AND `vkGroups`.`adminBanDuration` != 0 GROUP BY `author`, `groupId`;');
+
+                $bansCount = 0;
+
+                while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                    $query = $db->prepare('INSERT INTO `bans` (`message`, `date`, `endDate`, `userId`) VALUES (?,?,?,?);');
+                    $query->execute([
+                        (int)$row['id'],
+                        time(),
+                        time() + (int)$vkGroup['adminBanDuration'],
+                        $vas->account->getId()
+                    ]);
+
+                    $banId = (int)$db->lastInsertId();
+
+                    VkUtils::banGroupUser(
+                        $row['adminVkToken'],
+                        (int)$row['groupId'],
+                        (int)$row['author'],
+                        (int)$vkGroup['adminBanDuration'],
+                        VkUtils::BAN_REASON_OTHER,
+                        'Бан #' . $banId . '. Если Вы считаете, что бан несправедливый, обращайтесь к vk.me/alxmay.'
+                    );
+
+                    $bansCount++;
+
+                }
+
+                // now delete the comments from the database
+
+                $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
+
+                ?>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    <?= count($toDeleteAndBan); ?> сообщений были <b>удалены</b>, <?= $bansCount ?> пользователей заблокировано в соответствии с настройками.
+                </div>
+                <?php
+
             }
 
             /*echo json_encode([
