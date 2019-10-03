@@ -11,7 +11,7 @@ use VkAntiSpam\VkAntiSpam;
 
 require $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 
-define('ACTION_DELELE_AND_LEARN', 3);
+define('ACTION_LEARN_SPAM', 3);
 define('ACTION_DELELE', 2);
 define('ACTION_DELELE_AND_BAN', 4);
 define('ACTION_LEARN_HAM', 1);
@@ -29,137 +29,123 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
     <div class="container">
         <?php
 
-        if (isset($_POST['action'])) {
+        if (isset($_POST['selectedMessages'])) {
 
-            $action = (int)$_POST['action'];
+            $toLearnSpam = [];
+            $toLearnHam = [];
+            $toDelete = [];
+            $toDeleteAndBan = [];
 
-            if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
-                ?>
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"></button>
-                    У Вас недостаточно прав для модерирования сообщений.
-                </div>
-                <?php
-            }
-            elseif (
-                $action !== ACTION_LEARN_HAM &&
-                $action !== ACTION_DELELE &&
-                $action !== ACTION_DELELE_AND_LEARN &&
-                $action !== ACTION_DELELE_AND_BAN
-            ) {
+            $i = 0;
 
-                ?>
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"></button>
-                    Ошибка! Некорректный запрос.
-                </div>
-                <?php
+            foreach ($_POST['selectedMessages'] as $selectedMessage => $category) {
 
-            }
-            elseif (!isset($_POST['selectedMessages'])) {
+                if ($i > 50) { // limit
+                    break;
+                }
 
-                ?>
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"></button>
-                    Вы не выбрали ни одного сообщения.
-                </div>
-                <?php
+                $i++;
 
-            }
-            elseif (empty((array)$_POST['selectedMessages']) || count((array)$_POST['selectedMessages']) > 50) {
-
-                ?>
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"></button>
-                    Вы не выбрали ни одного сообщения (запрос некорректный).
-                </div>
-                <?php
-
-            }
-            else {
-
-                $selectedMessages = (array)$_POST['selectedMessages'];
-
-                $selectedMessages = array_map(function ($el) {
-                    return (int)$el;
-                }, $selectedMessages);
-
-                $db = VkAntiSpam::get()->getDatabaseConnection();
-
-                switch ($action) {
+                switch ((int)$category) {
 
                     case ACTION_LEARN_HAM:
-
-                        $query = $db->query('SELECT `message` FROM `messages` WHERE `id` IN(' .
-                            implode(',', $selectedMessages)
-                            . ');');
-
-                        $antispam = new TextClassifier();
-
-                        while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
-
-                            $antispam->learn($row['message'], TextClassifier::CATEGORY_HAM);
-
-                        }
-
-                        // we are 100% sure is is ham
-
-                        $query = $db->prepare(
-                                'UPDATE `messages` SET `category` = ? WHERE `id` IN(' .
-                                implode(',', $selectedMessages) . ');');
-
-                        $query->execute([
-                            TextClassifier::CATEGORY_HAM
-                        ]);
-
-                        ?>
-                        <div class="alert alert-success" role="alert">
-                            <button type="button" class="close" data-dismiss="alert"></button>
-                            <?= count($selectedMessages); ?> сообщений были сохранены как не-спам.
-                        </div>
-                        <?php
-
+                        $toLearnHam[] = (int)$selectedMessage;
                         break;
 
                     case ACTION_DELELE:
-
-                        // we just have to delete the comment
-
-                        $query = $db->query(
-                                'SELECT `id`, `groupId`, `vkContext`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `messages`.`id` IN(' .
-                                implode(',', $selectedMessages) .
-                                ') AND `messages`.`groupId` = `vkGroups`.`vkId`;');
-
-                        // delete comments from vk
-                        while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
-
-                            VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
-
-                        }
-
-                        // now delete the comments from the database
-
-                        $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN(' .
-                            implode(',', $selectedMessages) .
-                            ') LIMIT 50;');
-
-                        ?>
-                        <div class="alert alert-success" role="alert">
-                            <button type="button" class="close" data-dismiss="alert"></button>
-                            <?= count($selectedMessages); ?> сообщений были удалены.
-                        </div>
-                        <?php
-
+                        $toDelete[] = (int)$selectedMessage;
                         break;
 
+                    case ACTION_LEARN_SPAM:
+                        $toLearnSpam[] = (int)$selectedMessage;
+                        break;
 
+                    case ACTION_DELELE_AND_BAN:
+                        $toDeleteAndBan[] = (int)$selectedMessage;
+                        break;
+
+                    default:
+                        break;
 
                 }
 
+            }
 
-                // echo json_encode($selectedMessages);
+            if (!empty($toLearnHam)) {
+
+                $gluedMessages = implode(',', $toLearnHam);
+
+                $query = $db->query('SELECT `message` FROM `messages` WHERE `id` IN('.$gluedMessages.');');
+
+                $antispam = new TextClassifier();
+
+                while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                    $antispam->learn($row['message'], TextClassifier::CATEGORY_HAM);
+
+                }
+
+                // we are 100% sure is is ham
+
+                $query = $db->prepare(
+                    'UPDATE `messages` SET `category` = ? WHERE `id` IN('.$gluedMessages.');');
+
+                $query->execute([
+                    TextClassifier::CATEGORY_HAM
+                ]);
+
+                ?>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    <?= count($toLearnHam); ?> сообщений были сохранены как не-спам.
+                </div>
+                <?php
 
             }
+
+            if (!empty($toDelete)) {
+
+                // we just have to delete the comment
+
+                $gluedMessages = implode(',', $toDelete);
+
+                $query = $db->query(
+                    'SELECT `id`, `groupId`, `vkContext`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `messages`.`id` IN('.$gluedMessages.') AND `messages`.`groupId` = `vkGroups`.`vkId`;');
+
+                // delete comments from vk
+                while (($row = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                    VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
+
+                }
+
+                // now delete the comments from the database
+
+                $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
+
+                ?>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    <?= count($toDelete); ?> сообщений были удалены.
+                </div>
+                <?php
+
+            }
+
+            if (!empty($toLearnSpam)) {
+                // TODO
+            }
+
+            if (!empty($toDeleteAndBan)) {
+                // TODO
+            }
+
+            /*echo json_encode([
+                'spam' => $toLearnSpam,
+                'ham' => $toLearnHam,
+                'delete' => $toDelete,
+                'deleteAndBan' => $toDeleteAndBan,
+            ]);*/
 
         }
 
@@ -198,11 +184,23 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                                     ?>
                                     <tr>
-                                        <td><?= $currentRow['id']; ?></td>
+                                        <td class="d-none d-sm-table-cell"><?= $currentRow['id']; ?></td>
                                         <td>
-                                            <label class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" name="selectedMessages[]" value="<?= $currentRow['id']; ?>">
-                                                <div class="custom-control-label"></div>
+                                            <label class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" name="selectedMessages[<?= $currentRow['id']; ?>]" value="<?= ACTION_LEARN_SPAM; ?>">
+                                                <div class="custom-control-label">Спам</div>
+                                            </label>
+                                            <label class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" name="selectedMessages[<?= $currentRow['id']; ?>]" value="<?= ACTION_LEARN_HAM; ?>">
+                                                <div class="custom-control-label">Не&nbsp;спам</div>
+                                            </label>
+                                            <label class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" name="selectedMessages[<?= $currentRow['id']; ?>]" value="<?= ACTION_DELELE; ?>">
+                                                <div class="custom-control-label">Удалить</div>
+                                            </label>
+                                            <label class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" name="selectedMessages[<?= $currentRow['id']; ?>]" value="<?= ACTION_DELELE_AND_BAN; ?>">
+                                                <div class="custom-control-label">Удалить&nbsp;+&nbsp;бан</div>
                                             </label>
                                         </td>
                                         <td class="d-none d-sm-table-cell"><?= date('d.m.Y H:i:s', (int)$currentRow['date']); ?></td>
@@ -231,7 +229,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <table class="table card-table table-vcenter">
                             <thead>
                             <tr>
-                                <th>#</th>
+                                <th class="d-none d-sm-table-cell">#</th>
                                 <th class="w-1"></th>
                                 <th class="d-none d-sm-table-cell">Дата</th>
                                 <th>Сообщение</th>
@@ -257,13 +255,13 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <div class="card-header">
                             <h3 class="card-title">С выбранными сообщениями</h3>
                         </div>
-                        <div class="card-body">
+                        <!--<div class="card-body">
                             <div class="form-group">
                                 <div class="form-label">Выберите действие</div>
                                 <div class="custom-switches-stacked">
                                     <label class="custom-switch">
                                         <div class="w-4 h-4 bg-danger rounded mr-4"></div>
-                                        <input type="radio" name="action" value="<?= ACTION_DELELE_AND_LEARN; ?>" class="custom-switch-input">
+                                        <input type="radio" name="action" value="<?= ACTION_LEARN_SPAM; ?>" class="custom-switch-input">
                                         <span class="custom-switch-indicator"></span>
                                         <span class="custom-switch-description">
                                             Удалить выбранные сообщения, запомнить их как спам и, если необходимо, заблокировать пользователей
@@ -289,7 +287,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                     </label>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="card-footer">
                             <button type="submit" class="btn btn-success">
                                 <i class="fe fe-check mr-2"></i>Применить

@@ -23,6 +23,7 @@ CREATE TABLE `bans` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `message` BIGINT UNSIGNED NOT NULL, -- message the user was banned for
     `date` BIGINT UNSIGNED NOT NULL, -- ban date
+    `automatic` TINYINT(1) UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`message`) REFERENCES `messages`(`id`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
