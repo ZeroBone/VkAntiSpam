@@ -94,9 +94,12 @@ else {
 
                     $learnFromOutcomingComments = isset($_POST['learnFromOutcomingComments']) ? 1 : 0;
 
+                    $learnFromDeletedComments = isset($_POST['learnFromDeletedComments']) ? 1 : 0;
+
                     $deleteMessagesFromGroups = isset($_POST['deleteMessagesFromGroups']) ? 1 : 0;
 
-                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
+                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `learnFromDeletedComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
+
                     $query->execute([
                         $sMinMessageLength, // min message length
                         $sMaxMessageLength, // max message length
@@ -104,6 +107,7 @@ else {
                         $sSpamBanDuration, // ban duration
                         $sAdminBanDuration, // admin ban duration
                         $learnFromOutcomingComments, // learn from outcoming comments
+                        $learnFromDeletedComments, // learn from deleted comments
                         $deleteMessagesFromGroups, // delete messages from groups
                         (int)$_GET['g'] // group vk id
                     ]);
@@ -114,6 +118,7 @@ else {
                     $vkGroup['adminBanDuration'] = $sAdminBanDuration;
                     $vkGroup['restrictedAttachments'] = $newRestrictedAttachments;
                     $vkGroup['learnFromOutcomingComments'] = $learnFromOutcomingComments;
+                    $vkGroup['learnFromDeletedComments'] = $learnFromDeletedComments;
                     $vkGroup['deleteMessagesFromGroups'] = $deleteMessagesFromGroups;
 
                     ?>
@@ -186,6 +191,14 @@ else {
                                 <label class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" name="learnFromOutcomingComments"<?= ((int)$vkGroup['learnFromOutcomingComments'] === 1) ? ' checked="checked"' : '' ?>>
                                     <span class="custom-control-label">Обучаться на комментариях от имени группы</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-controls-stacked">
+                                <label class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="learnFromDeletedComments"<?= ((int)$vkGroup['learnFromDeletedComments'] === 1) ? ' checked="checked"' : '' ?>>
+                                    <span class="custom-control-label">Обучаться на удалённых администрацией комментариях</span>
                                 </label>
                             </div>
                         </div>

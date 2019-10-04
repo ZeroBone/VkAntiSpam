@@ -94,6 +94,7 @@ CREATE TABLE `vkGroups` (
     `spamBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
     `adminBanDuration` INT UNSIGNED NOT NULL DEFAULT 0, -- 0 if bans are disabled
     `learnFromOutcomingComments` TINYINT(1) NOT NULL DEFAULT 0,
+    `learnFromDeletedComments` TINYINT(1) NOT NULL DEFAULT 0,
     `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;

@@ -65,9 +65,13 @@ class VkWallReplyDeleteEvent extends VkEvent {
             return;
         }
 
-        $classifier = new TextClassifier();
+        if ((int)$vkGroup['learnFromDeletedComments'] === 1) {
 
-        $classifier->learn($message['message'], TextClassifier::CATEGORY_SPAM);
+            $classifier = new TextClassifier();
+
+            $classifier->learn($message['message'], TextClassifier::CATEGORY_SPAM);
+
+        }
 
         $this->deleteMessageFromDb((int)$message['id']);
 

@@ -3,6 +3,7 @@
 namespace VkAntiSpam\Event;
 
 use VkAntiSpam\System\CommentChangeHandler;
+use VkAntiSpam\VkAntiSpam;
 
 class VkWallReplyEditEvent extends VkEvent {
 
@@ -14,7 +15,14 @@ class VkWallReplyEditEvent extends VkEvent {
 
     public function handle($vkGroup) {
 
-        // TODO: delete old comment from the database
+        $db = VkAntiSpam::get()->getDatabaseConnection();
+
+        $query = $db->prepare('DELETE FROM `messages` WHERE `type` = 1 AND `vkId` = ? AND `vkContext` = ? LIMIT 1;');
+
+        $query->execute([
+            (int)$this->object['id'],
+            (int)$this->object['post_id']
+        ]);
 
         $handler = new CommentChangeHandler($this->object);
 
