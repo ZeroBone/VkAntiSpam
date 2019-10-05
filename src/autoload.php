@@ -6,6 +6,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/src/VkAntiSpam.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/account/Account.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/account/GroupRole.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/CommentChangeHandler.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/Reputation.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/TextClassifier.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/config/AccountConfig.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/config/VkAntiSpamConfig.php';

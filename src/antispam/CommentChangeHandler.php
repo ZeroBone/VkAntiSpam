@@ -156,7 +156,14 @@ class CommentChangeHandler {
 
             // this user already exists
 
-            // TODO: consider reputation change
+            // reputation change
+
+            $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
+
+            $query->execute([
+                ($category === TextClassifier::CATEGORY_HAM) ? Reputation::CLASSIFIER_HAM : Reputation::CLASSIFIER_SPAM, // reputation change
+                $commentAuthor
+            ]);
 
         }
         else {

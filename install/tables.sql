@@ -75,8 +75,10 @@ CREATE TABLE `vkUsers` (
    `photo_100` VARCHAR(255) NOT NULL,
    `photo_200` VARCHAR(255) NOT NULL,
    `photo_max` VARCHAR(255) NOT NULL,
-   `unbans` INT UNSIGNED NOT NULL DEFAULT 0,
-   PRIMARY KEY (`vkId`)
+   `wasUnbanned` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+   `reputation` BIGINT NOT NULL DEFAULT 0,
+   PRIMARY KEY (`vkId`),
+   KEY (`reputation`)
 ) ENGINE=MyISAM, charset=utf8;
 
 CREATE TABLE `vkGroups` (
@@ -96,6 +98,7 @@ CREATE TABLE `vkGroups` (
     `learnFromOutcomingComments` TINYINT(1) NOT NULL DEFAULT 0,
     `learnFromDeletedComments` TINYINT(1) NOT NULL DEFAULT 0,
     `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 1,
+    `neutralWords` VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 

@@ -1,6 +1,7 @@
 <?php
 
 use VkAntiSpam\Account\Account;
+use VkAntiSpam\System\Reputation;
 use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\Utils\Paginator;
 use VkAntiSpam\Utils\PaginatorClient;
@@ -95,7 +96,24 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 }
 
+                // update reputation
+
+                /*
+                   UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` IN (
+                       SELECT `author` FROM `messages` WHERE `id` IN (1,2,3)
+                   );
+                 */
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` IN (
+                       SELECT `author` FROM `messages` WHERE `id` IN ('.$gluedMessages.')
+                   );');
+
+                $query->execute([
+                    Reputation::ADMIN_HAM // reputation change
+                ]);
+
                 // we are 100% sure is is ham
+                // update category
 
                 $query = $db->prepare(
                     'UPDATE `messages` SET `category` = ? WHERE `id` IN('.$gluedMessages.');');
@@ -145,6 +163,16 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 }
 
+                // update reputation
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` IN (
+                       SELECT `author` FROM `messages` WHERE `id` IN ('.$gluedMessages.')
+                   );');
+
+                $query->execute([
+                    Reputation::ADMIN_DELETES // reputation change
+                ]);
+
                 // now delete the comments from the database
 
                 $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
@@ -179,7 +207,17 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 }
 
-                // we are 100% sure is is ham
+                // update reputation
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` IN (
+                       SELECT `author` FROM `messages` WHERE `id` IN ('.$gluedMessages.')
+                   );');
+
+                $query->execute([
+                    Reputation::ADMIN_SPAM
+                ]);
+
+                // we are 100% sure is is spam
 
                 $query = $db->prepare(
                     'UPDATE `messages` SET `category` = ? WHERE `id` IN('.$gluedMessages.');');
@@ -210,6 +248,18 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                     VkUtils::deleteGroupComment($row['adminVkToken'], (int)$row['groupId'], (int)$row['vkContext']);
 
                 }
+
+                // update reputation
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` IN (
+                       SELECT `author` FROM `messages` WHERE `id` IN ('.$gluedMessages.')
+                   );');
+
+                $query->execute([
+                    Reputation::ADMIN_DELETES_AND_BANNES
+                ]);
+
+                // ban
 
                 // 'SELECT `author` FROM `messages` WHERE `id` IN(1,2,3,4,5,6) GROUP BY `author`';
                 // SELECT `author`, `groupId`, `vkGroups`.`adminVkToken` FROM `messages`, `vkGroups` WHERE `id` IN(1,2,3,4,5,6) AND `groupId` = `vkGroups`.`vkId` AND `vkGroups`.`spamBanDuration` = 0 GROUP BY `author`, `groupId`;
