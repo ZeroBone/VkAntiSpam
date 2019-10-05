@@ -3,6 +3,7 @@
 namespace VkAntiSpam\Event;
 
 use PDO;
+use VkAntiSpam\System\Reputation;
 use VkAntiSpam\System\TextClassifier;
 use VkAntiSpam\VkAntiSpam;
 
@@ -70,6 +71,15 @@ class VkWallReplyDeleteEvent extends VkEvent {
             $classifier = new TextClassifier();
 
             $classifier->learn($message['message'], TextClassifier::CATEGORY_SPAM);
+
+            // update reputation
+
+            $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
+
+            $query->execute([
+                Reputation::ADMIN_DELETES,
+                (int)$message['author']
+            ]);
 
         }
 

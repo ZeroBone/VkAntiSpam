@@ -221,11 +221,11 @@ class CommentChangeHandler {
 
                 VkUtils::banGroupUser(
                     $vkGroup['adminVkToken'],
-                    $vkGroup['vkId'],
+                    (int)$vkGroup['vkId'],
                     $commentAuthor,
                     (int)$vkGroup['spamBanDuration'],
                     VkUtils::BAN_REASON_SPAM,
-                    'Автоматический бан #' . $banId . '. Если Вы считаете, что бан несправедливый, обращайтесь к vk.me/alxmay.'
+                    'Автоматический бан #' . $banId . '.'
                 );
 
             }

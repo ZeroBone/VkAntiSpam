@@ -136,7 +136,7 @@ class VkAntiSpam {
         echo 'ok';
 
         /*session_write_close();
-        fastcgi_finish_request();*/ // TODO: uncomment
+        fastcgi_finish_request();*/ // TODO: uncomment for production
 
         ////////////////////////////////
 
