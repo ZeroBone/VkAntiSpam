@@ -115,13 +115,17 @@ CREATE TABLE `vkGroupManagers` (
 CREATE TABLE `vkMessageWhitelist` (
     `vkGroupId` BIGINT NOT NULL,
     `vkId` BIGINT NOT NULL, -- user or group id
+    `whitelister` BIGINT UNSIGNED NOT NULL, -- who added this entry to the whitelist
     KEY (`vkGroupId`),
-    KEY (`vkId`)
+    KEY (`vkId`),
+    FOREIGN KEY (`whitelister`) REFERENCES `users`(`id`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 
 CREATE TABLE `vkPostWhitelist` (
     `vkGroupId` BIGINT NOT NULL,
     `postVkId` BIGINT NOT NULL,
+    `whitelister` BIGINT UNSIGNED NOT NULL, -- who added this entry to the whitelist
     KEY (`vkGroupId`),
-    KEY (`postVkId`)
+    KEY (`postVkId`),
+    FOREIGN KEY (`whitelister`) REFERENCES `users`(`id`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;

@@ -127,58 +127,62 @@ class CommentChangeHandler {
 
         // ham or spam
 
-        $vkResponse = VkUtils::callVkApi($vkGroup['token'], 'users.get', [
-            'user_ids' => $commentAuthor,
-            'fields' => implode(',', [
-                'photo_50',
-                'photo_100',
-                'photo_200',
-                'photo_max'
-            ])
-        ]);
+        if ($commentAuthor > 0) {
 
-        // file_put_contents('test.json', json_encode($vkResponse));
+            $vkResponse = VkUtils::callVkApi($vkGroup['token'], 'users.get', [
+                'user_ids' => $commentAuthor,
+                'fields' => implode(',', [
+                    'photo_50',
+                    'photo_100',
+                    'photo_200',
+                    'photo_max'
+                ])
+            ]);
 
-        if (!isset($vkResponse['response'][0])) {
-            return;
-        }
+            // file_put_contents('test.json', json_encode($vkResponse));
 
-        $vkResponse = $vkResponse['response'][0];
+            if (!isset($vkResponse['response'][0])) {
+                return;
+            }
 
-        $db = VkAntiSpam::get()->getDatabaseConnection();
+            $vkResponse = $vkResponse['response'][0];
 
-        $query = $db->prepare('SELECT `vkId` FROM `vkUsers` WHERE `vkId` = ? LIMIT 1;');
-        $query->execute([
-            $commentAuthor
-        ]);
+            $db = VkAntiSpam::get()->getDatabaseConnection();
 
-        if (isset($query->fetch(PDO::FETCH_ASSOC)['vkId'])) {
-
-            // this user already exists
-
-            // reputation change
-
-            $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
-
+            $query = $db->prepare('SELECT `vkId` FROM `vkUsers` WHERE `vkId` = ? LIMIT 1;');
             $query->execute([
-                ($category === TextClassifier::CATEGORY_HAM) ? Reputation::CLASSIFIER_HAM : Reputation::CLASSIFIER_SPAM, // reputation change
                 $commentAuthor
             ]);
 
-        }
-        else {
+            if (isset($query->fetch(PDO::FETCH_ASSOC)['vkId'])) {
 
-            $query = $db->prepare('INSERT INTO `vkUsers` (vkId, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?);');
-            $query->execute([
-                $commentAuthor,
-                $vkResponse['first_name'],
-                $vkResponse['last_name'],
-                $vkResponse['is_closed'] ? 1 : 0,
-                $vkResponse['photo_50'],
-                $vkResponse['photo_100'],
-                $vkResponse['photo_200'],
-                $vkResponse['photo_max']
-            ]);
+                // this user already exists
+
+                // reputation change
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
+
+                $query->execute([
+                    ($category === TextClassifier::CATEGORY_HAM) ? Reputation::CLASSIFIER_HAM : Reputation::CLASSIFIER_SPAM, // reputation change
+                    $commentAuthor
+                ]);
+
+            }
+            else {
+
+                $query = $db->prepare('INSERT INTO `vkUsers` (vkId, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?);');
+                $query->execute([
+                    $commentAuthor,
+                    $vkResponse['first_name'],
+                    $vkResponse['last_name'],
+                    $vkResponse['is_closed'] ? 1 : 0,
+                    $vkResponse['photo_50'],
+                    $vkResponse['photo_100'],
+                    $vkResponse['photo_200'],
+                    $vkResponse['photo_max']
+                ]);
+
+            }
 
         }
 

@@ -29,7 +29,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration`, `learnFromOutcomingComments`, `deleteMessagesFromGroups` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
+$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration`, `adminBanDuration`, `learnFromOutcomingComments`, `learnFromDeletedComments`, `deleteMessagesFromGroups`, `neutralWords` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
 $query->execute([
     (int)$_GET['g']
 ]);
