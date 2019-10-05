@@ -20,8 +20,7 @@ class TextClassifier {
 
     private function tokenize($text) {
 
-        $filteredWords = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто', 'так'];
-        // TODO: get filtered word from config
+        $neutralTokens = ['и', 'но', 'или', 'да', 'нет', 'за', 'что', 'как', 'это', 'эти', 'те', 'то', 'кто', 'так'];
 
         $text = preg_replace('/[^a-zA-Z0-9А-ЯЁа-яё ]+/u', '', $text);
         $text = mb_strtolower($text, 'utf-8');
@@ -32,7 +31,7 @@ class TextClassifier {
 
         while ($token !== false) {
 
-            if (mb_strlen($token, 'utf-8') > 2 && !in_array($token, $filteredWords)) {
+            if (mb_strlen($token, 'utf-8') > 2 && !in_array($token, $neutralTokens)) {
                 $keywords[] = $token;
             }
 

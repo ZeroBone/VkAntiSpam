@@ -98,7 +98,6 @@ CREATE TABLE `vkGroups` (
     `learnFromOutcomingComments` TINYINT(1) NOT NULL DEFAULT 0,
     `learnFromDeletedComments` TINYINT(1) NOT NULL DEFAULT 0,
     `deleteMessagesFromGroups` TINYINT(1) NOT NULL DEFAULT 1,
-    `neutralWords` VARCHAR(255) NOT NULL DEFAULT 'и,но,или,да,нет,за,что,как,это,эти,те,то,кто,так',
     PRIMARY KEY (`vkId`)
 ) ENGINE=MyISAM, charset=utf8, AUTO_INCREMENT=1;
 

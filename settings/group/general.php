@@ -29,7 +29,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration`, `adminBanDuration`, `learnFromOutcomingComments`, `learnFromDeletedComments`, `deleteMessagesFromGroups`, `neutralWords` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
+$query = $db->prepare('SELECT `vkId`, `name`, `minMessageLength`, `maxMessageLength`, `restrictedAttachments`, `spamBanDuration`, `adminBanDuration`, `learnFromOutcomingComments`, `learnFromDeletedComments`, `deleteMessagesFromGroups` FROM `vkGroups` WHERE `vkId` = ? LIMIT 1;');
 $query->execute([
     (int)$_GET['g']
 ]);
@@ -94,7 +94,7 @@ else {
                     $sSpamBanDuration = max((int)$_POST['spamBanDuration'], 0);
                     $sAdminBanDuration = max((int)$_POST['adminBanDuration'], 0);
 
-                    $sNeutralWords = isset($_POST['neutralWords']) ? (string)$_POST['neutralWords'] : '';
+                    /*$sNeutralWords = isset($_POST['neutralWords']) ? (string)$_POST['neutralWords'] : '';
 
                     $sNeutralWords = substr($sNeutralWords, 0, 255);
 
@@ -123,7 +123,7 @@ else {
 
                     }
 
-                    $neutralWords = implode(',', $neutralWords);
+                    $neutralWords = implode(',', $neutralWords);*/
 
                     $restrictedAttachments = [];
 
@@ -145,9 +145,7 @@ else {
 
                     $deleteMessagesFromGroups = isset($_POST['deleteMessagesFromGroups']) ? 1 : 0;
 
-                    // neutral words
-
-                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `learnFromDeletedComments` = ?, `deleteMessagesFromGroups` = ?, `neutralWords` = ? WHERE `vkId` = ? LIMIT 1;');
+                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `learnFromDeletedComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
 
                     $query->execute([
                         $sMinMessageLength, // min message length
@@ -158,7 +156,7 @@ else {
                         $learnFromOutcomingComments, // learn from outcoming comments
                         $learnFromDeletedComments, // learn from deleted comments
                         $deleteMessagesFromGroups, // delete messages from groups
-                        $neutralWords, // neutral words
+                        // $neutralWords, // neutral words
                         (int)$_GET['g'] // group vk id
                     ]);
 
@@ -170,7 +168,7 @@ else {
                     $vkGroup['learnFromOutcomingComments'] = $learnFromOutcomingComments;
                     $vkGroup['learnFromDeletedComments'] = $learnFromDeletedComments;
                     $vkGroup['deleteMessagesFromGroups'] = $deleteMessagesFromGroups;
-                    $vkGroup['neutralWords'] = $neutralWords;
+                    // $vkGroup['neutralWords'] = $neutralWords;
 
                     ?>
                     <div class="alert alert-success" role="alert">
@@ -261,12 +259,12 @@ else {
                                 </label>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <!--<div class="form-group">
                             <label class="form-label">
                                 Нейтральные слова, разделённые запятыми
-                                <input type="text" class="form-control" name="neutralWords" value="<?= $vkGroup['neutralWords']; ?>" minlength="0" maxlength="255">
+                                <input type="text" class="form-control" name="neutralWords" value="<?= 0 /*$vkGroup['neutralWords'];*/ ?>" minlength="0" maxlength="255">
                             </label>
-                        </div>
+                        </div>-->
                         <div class="card-footer text-right">
                             <button type="submit" class="btn btn-primary">Сохранить</button>
                         </div>
