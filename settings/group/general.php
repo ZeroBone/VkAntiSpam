@@ -1,6 +1,6 @@
 <?php
 
-use VkAntiSpam\Account\Account;
+use VkAntiSpam\Account\GroupRole;
 use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\Utils\Utils;
 use VkAntiSpam\Utils\VkAttachment;
@@ -20,10 +20,10 @@ if (!$vas->account->loggedIn()) {
     exit(0);
 }
 
-if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
+/*if (!$vas->account->isRole(Account::ROLE_SUPER_MODERATOR)) {
     Utils::redirect('/account/login');
     exit(0);
-}
+}*/
 
 require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
@@ -52,7 +52,23 @@ if (!isset($vkGroup['vkId'])) {
     <?php
 
 }
-// TODO: verify that user is editor in group or editor as account privelege
+// verify that user is editor in group or editor as account privelege
+elseif (!GroupRole::isGroupEditor((int)$vkGroup['vkId'], $vas->account->getId())) {
+
+    ?>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"></button>
+                    У Вас недостаточно прав для просмотра и изменения настроек данной группы.
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+
+}
 else {
 
     ?>
@@ -78,6 +94,37 @@ else {
                     $sSpamBanDuration = max((int)$_POST['spamBanDuration'], 0);
                     $sAdminBanDuration = max((int)$_POST['adminBanDuration'], 0);
 
+                    $sNeutralWords = isset($_POST['neutralWords']) ? (string)$_POST['neutralWords'] : '';
+
+                    $sNeutralWords = substr($sNeutralWords, 0, 255);
+
+                    $neutralWords = [];
+
+                    {
+
+                        foreach (explode(',', $sNeutralWords) as $nw) {
+
+                            if ($nw === '') {
+                                continue;
+                            }
+
+                            if (preg_match('/[^a-zA-Z0-9А-ЯЁа-яё()]/u', trim($nw))) {
+                                // odd characters
+                                continue;
+                            }
+
+                            $newNw = preg_replace('/[^a-zA-Z0-9А-ЯЁа-яё]/u', '', trim($nw));
+
+                            if ($newNw !== '') {
+                                $neutralWords[] = $newNw;
+                            }
+
+                        }
+
+                    }
+
+                    $neutralWords = implode(',', $neutralWords);
+
                     $restrictedAttachments = [];
 
                     if (isset($_POST['restrictedAttachments'])) {
@@ -98,7 +145,9 @@ else {
 
                     $deleteMessagesFromGroups = isset($_POST['deleteMessagesFromGroups']) ? 1 : 0;
 
-                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `learnFromDeletedComments` = ?, `deleteMessagesFromGroups` = ? WHERE `vkId` = ? LIMIT 1;');
+                    // neutral words
+
+                    $query = $db->prepare('UPDATE `vkGroups` SET `minMessageLength` = ?, `maxMessageLength` = ?, `restrictedAttachments` = ?, `spamBanDuration` = ?, `adminBanDuration` = ?, `learnFromOutcomingComments` = ?, `learnFromDeletedComments` = ?, `deleteMessagesFromGroups` = ?, `neutralWords` = ? WHERE `vkId` = ? LIMIT 1;');
 
                     $query->execute([
                         $sMinMessageLength, // min message length
@@ -109,6 +158,7 @@ else {
                         $learnFromOutcomingComments, // learn from outcoming comments
                         $learnFromDeletedComments, // learn from deleted comments
                         $deleteMessagesFromGroups, // delete messages from groups
+                        $neutralWords, // neutral words
                         (int)$_GET['g'] // group vk id
                     ]);
 
@@ -120,6 +170,7 @@ else {
                     $vkGroup['learnFromOutcomingComments'] = $learnFromOutcomingComments;
                     $vkGroup['learnFromDeletedComments'] = $learnFromDeletedComments;
                     $vkGroup['deleteMessagesFromGroups'] = $deleteMessagesFromGroups;
+                    $vkGroup['neutralWords'] = $neutralWords;
 
                     ?>
                     <div class="alert alert-success" role="alert">
@@ -209,6 +260,12 @@ else {
                                     <span class="custom-control-label">Удалять сообщения от других групп</span>
                                 </label>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Нейтральные слова, разделённые запятыми
+                                <input type="text" class="form-control" name="neutralWords" value="<?= $vkGroup['neutralWords']; ?>" minlength="0" maxlength="255">
+                            </label>
                         </div>
                         <div class="card-footer text-right">
                             <button type="submit" class="btn btn-primary">Сохранить</button>
