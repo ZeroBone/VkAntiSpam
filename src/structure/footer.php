@@ -17,7 +17,7 @@ if (!defined('SECURITY_CANARY')) {
                 </div>
             </div>
             <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                Copyright &copy; <?= date('Y') ?> <a href="https://github.com/ZeroBone">Александр Майоров</a>. Все права защищены.
+                Copyright &copy; 2019 - <?= date('Y') ?> <a href="https://zerobone.net">Александр Майоров</a>. Все права защищены. Версия: 1.0.0
             </div>
         </div>
     </div>

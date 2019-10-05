@@ -68,6 +68,7 @@ CREATE TABLE `users` (
 
 CREATE TABLE `vkUsers` (
    `vkId` BIGINT NOT NULL,
+   `date` BIGINT UNSIGNED NOT NULL, -- insert date
    `firstName` VARCHAR(40) NOT NULL,
    `lastName` VARCHAR(40) NOT NULL,
    `closedProfile` TINYINT NOT NULL,

@@ -84,6 +84,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
             if (!empty($toLearnHam)) {
 
+                $db = VkAntiSpam::get()->getDatabaseConnection();
+
                 $gluedMessages = implode(',', $toLearnHam);
 
                 $query = $db->query('SELECT `message` FROM `messages` WHERE `id` IN('.$gluedMessages.');');
@@ -149,6 +151,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
             if (!empty($toDelete)) {
 
+                $db = VkAntiSpam::get()->getDatabaseConnection();
+
                 // we just have to delete the comment
 
                 $gluedMessages = implode(',', $toDelete);
@@ -187,6 +191,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
             }
 
             if (!empty($toLearnSpam)) {
+
+                $db = VkAntiSpam::get()->getDatabaseConnection();
 
                 // delete comments and mark them as spam
 
@@ -236,6 +242,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
             }
 
             if (!empty($toDeleteAndBan)) {
+
+                $db = VkAntiSpam::get()->getDatabaseConnection();
 
                 $gluedMessages = implode(',', $toDeleteAndBan);
 

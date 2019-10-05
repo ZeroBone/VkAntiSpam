@@ -170,9 +170,10 @@ class CommentChangeHandler {
             }
             else {
 
-                $query = $db->prepare('INSERT INTO `vkUsers` (vkId, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?);');
+                $query = $db->prepare('INSERT INTO `vkUsers` (vkId, `date`, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?,?);');
                 $query->execute([
                     $commentAuthor,
+                    time(),
                     $vkResponse['first_name'],
                     $vkResponse['last_name'],
                     $vkResponse['is_closed'] ? 1 : 0,
@@ -185,6 +186,8 @@ class CommentChangeHandler {
             }
 
         }
+
+        $db = VkAntiSpam::get()->getDatabaseConnection();
 
         $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
         $query->execute([

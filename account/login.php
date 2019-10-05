@@ -108,7 +108,7 @@ if (
     <script src="/assets/js/require.min.js"></script>
     <script>
         requirejs.config({
-            baseUrl: '.'
+            baseUrl: '/'
         });
     </script>
     <!-- Dashboard Core -->
