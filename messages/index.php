@@ -352,7 +352,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                                 $db = VkAntiSpam::get()->getDatabaseConnection();
 
-                                $query = $db->query('SELECT `messages`.*, `vkGroups`.`name` AS `vkGroupName` FROM `messages`, `vkGroups` WHERE `category` = 0 ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
+                                $query = $db->query('SELECT `messages`.*, `vkGroups`.`name` AS `vkGroupName` FROM `messages`, `vkGroups` WHERE `category` = 0 AND `messages`.`groupId` = `vkGroups`.`vkId` ORDER BY `id` DESC LIMIT 50 OFFSET ' . (int)$offset . ';');
 
                                 while (($currentRow = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
@@ -429,39 +429,6 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         <div class="card-header">
                             <h3 class="card-title">С выбранными сообщениями</h3>
                         </div>
-                        <!--<div class="card-body">
-                            <div class="form-group">
-                                <div class="form-label">Выберите действие</div>
-                                <div class="custom-switches-stacked">
-                                    <label class="custom-switch">
-                                        <div class="w-4 h-4 bg-danger rounded mr-4"></div>
-                                        <input type="radio" name="action" value="<?= ACTION_LEARN_SPAM; ?>" class="custom-switch-input">
-                                        <span class="custom-switch-indicator"></span>
-                                        <span class="custom-switch-description">
-                                            Удалить выбранные сообщения, запомнить их как спам и, если необходимо, заблокировать пользователей
-                                        </span>
-                                    </label>
-                                    <label class="custom-switch">
-                                        <div class="w-4 h-4 bg-primary rounded mr-4"></div>
-                                        <input type="radio" name="action" value="<?= ACTION_DELELE; ?>" class="custom-switch-input" checked="">
-                                        <span class="custom-switch-indicator"></span>
-                                        <span class="custom-switch-description">Удалить выбранные сообщения</span>
-                                    </label>
-                                    <label class="custom-switch">
-                                        <div class="w-4 h-4 bg-warning rounded mr-4"></div>
-                                        <input type="radio" name="action" value="<?= ACTION_DELELE_AND_BAN; ?>" class="custom-switch-input">
-                                        <span class="custom-switch-indicator"></span>
-                                        <span class="custom-switch-description">Удалить выбранные сообщения и заблокировать пользователей</span>
-                                    </label>
-                                    <label class="custom-switch">
-                                        <div class="w-4 h-4 bg-success rounded mr-4"></div>
-                                        <input type="radio" name="action" value="<?= ACTION_LEARN_HAM; ?>" class="custom-switch-input">
-                                        <span class="custom-switch-indicator"></span>
-                                        <span class="custom-switch-description">Запомнить выбранные сообщения как не-спам</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>-->
                         <div class="card-footer">
                             <button type="submit" class="btn btn-success">
                                 <i class="fe fe-check mr-2"></i>Применить

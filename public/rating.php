@@ -96,6 +96,8 @@ $vas = VkAntiSpam::web();
 
                                             $reputationPercent = ceil((float)$row['reputation'] / $maxReputation * 100);
 
+                                            $reputationColor = $reputationPercent >= 75 ? 'green' : 'yellow';
+
                                             ?>
                                             <tr>
                                                 <td>
@@ -119,7 +121,7 @@ $vas = VkAntiSpam::web();
                                                         </div>
                                                     </div>
                                                     <div class="progress progress-xs">
-                                                        <div class="progress-bar bg-yellow" role="progressbar" style="width: <?= $reputationPercent ?>%" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        <div class="progress-bar bg-<?= $reputationColor ?>" role="progressbar" style="width: <?= $reputationPercent ?>%" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
                                                     </div>
                                                 </td>
                                                 <td class="text-center">
