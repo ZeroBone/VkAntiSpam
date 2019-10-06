@@ -99,41 +99,22 @@ class TextClassifier {
 
         $db = VkAntiSpam::get()->getDatabaseConnection();
 
-        $query = $db->prepare('SELECT COUNT(*) AS `count` FROM `trainingSet` WHERE `category` = ?;');
+        $query = $db->prepare('SELECT COUNT(*) AS `count` FROM `trainingSet`;');
 
-        $query->execute([TextClassifier::CATEGORY_SPAM]);
+        $query->execute();
 
-        $spamCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
-
-        $query->execute([TextClassifier::CATEGORY_HAM]);
-
-        $hamCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
-
-        // actually this query is not needed
-        // this is a future-reserved check
-        $query = $db->query('SELECT COUNT(*) AS `count` FROM `trainingSet`;');
         $totalCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
 
-        if ($totalCount === 0) {
-            // not enouph information
-            return TextClassifier::CATEGORY_HAM;
-        }
+        $spamChance = .5;
+        $hamChance = .5;
 
-        /*if ($spamCount > max($hamCount - 1, 0)) {
-            $spamCount = max($hamCount - 1, 0);
-        }*/
+        $spamCount = floor($totalCount * $spamChance);
+        $hamCount = floor($totalCount * $hamChance);
 
         if ($spamCount === 0 || $hamCount === 0) {
             // not enouph information
             return TextClassifier::CATEGORY_HAM;
         }
-
-        $spamChance = $spamCount / $totalCount;
-
-        $hamChance = $hamCount / $totalCount;
-
-        // $spamChance = .5;
-        // $hamChance = .5;
 
         // get the number of distinct word
         // it is required by the laplace smoothing algo

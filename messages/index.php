@@ -294,7 +294,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                         (int)$row['author'],
                         (int)$vkGroup['adminBanDuration'],
                         VkUtils::BAN_REASON_OTHER,
-                        'Бан #' . $banId . '. Если Вы считаете, что бан несправедливый, обращайтесь к vk.me/alxmay.'
+                        'Бан #' . $banId . '.'
                     );
 
                     $bansCount++;

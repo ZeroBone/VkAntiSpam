@@ -113,6 +113,94 @@ class CommentChangeHandler {
 
         }
 
+        $db = VkAntiSpam::get()->getDatabaseConnection();
+
+        {
+
+            // anti flood protection
+            // it consists out of 2 checks
+
+            // =======================
+            // per-user flood check
+            // =======================
+
+            $query = $db->prepare('SELECT COUNT(*) AS `count` FROM `messages` WHERE `type` = 1 AND `groupId` = ? AND `date` > ? AND `author` = ?');
+
+            $query->execute([
+                (int)$vkGroup['vkId'], // group id
+                time() - 3600, // start date
+                $commentAuthor // author
+            ]);
+
+            $lastHourMessagesCount = (int)$query->fetch(PDO::FETCH_ASSOC)['count'];
+
+            if ($lastHourMessagesCount > 20) {
+
+                // too many messages
+
+                VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+                return;
+
+            }
+
+            // =======================
+            // per-message flood check
+            // =======================
+
+            $commentTextHash = abs(crc32($commentText));
+
+            // example
+            // SELECT COUNT(*) AS `total`, COUNT(DISTINCT(`author`)) AS `fromUniqueAuthors` FROM `messages` WHERE `type` = 1 AND `groupId` = 85087785 AND `messageHash` = 1157730628
+            // more advanced
+            // SELECT COUNT(*) AS `total`, COUNT(DISTINCT(`author`)) AS `fromUniqueAuthors`, SUM(`author` = 516124954) AS `fromThisAuthor` FROM `messages` WHERE `type` = 1 AND `groupId` = 85087785 AND `messageHash` = 1157730628
+            $query = $db->prepare('SELECT COUNT(*) AS `total`, COUNT(DISTINCT(`author`)) AS `fromUniqueAuthors`, SUM(`author` = ?) AS `fromThisAuthor` FROM `messages` WHERE `type` = 1 AND `groupId` = ? AND `messageHash` = ? AND `date` >= ? AND `message` = ?;');
+
+            $query->execute([
+                $commentAuthor, // author
+                (int)$vkGroup['vkId'], // group id
+                $commentTextHash, // message hash
+                time() - 86400, // start date
+                $commentText // message
+            ]);
+
+            $data = $query->fetch(PDO::FETCH_ASSOC);
+
+            $totalMessageCount = (int)$data['total'];
+            $uniqueAuthorMessageCount = (int)$data['fromUniqueAuthors'];
+            $thisAuthorMessageCount = (int)$data['fromThisAuthor'];
+
+            unset($data);
+
+            if ($thisAuthorMessageCount > 2) {
+
+                // the user has written a duplicating comment the third time
+
+                VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+                // reputation change
+
+                $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
+
+                $query->execute([
+                    Reputation::DUPLICATING_COMMENT,
+                    $commentAuthor
+                ]);
+
+                return;
+
+            }
+
+            if ($uniqueAuthorMessageCount > 10 || $totalMessageCount > 15) {
+
+                VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
+
+                return;
+
+            }
+
+        }
+
         $antispam = new TextClassifier();
 
         $category = $antispam->classify($commentText);
@@ -146,8 +234,6 @@ class CommentChangeHandler {
             }
 
             $vkResponse = $vkResponse['response'][0];
-
-            $db = VkAntiSpam::get()->getDatabaseConnection();
 
             $query = $db->prepare('SELECT `vkId` FROM `vkUsers` WHERE `vkId` = ? LIMIT 1;');
             $query->execute([
@@ -187,11 +273,9 @@ class CommentChangeHandler {
 
         }
 
-        $db = VkAntiSpam::get()->getDatabaseConnection();
-
         $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
         $query->execute([
-            $vkGroup['vkId'], // groupId
+            (int)$vkGroup['vkId'], // groupId
             1, // type
             $commentId, // vkId
             $commentAuthor, // author

@@ -14,6 +14,7 @@ CREATE TABLE `messages` (
     PRIMARY KEY (`id`),
     KEY (`groupId`),
     KEY (`type`),
+    KEY (`author`),
     KEY (`messageHash`),
     KEY (`date`),
     KEY (`category`)
