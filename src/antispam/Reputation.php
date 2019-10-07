@@ -38,7 +38,7 @@ class Reputation {
     /**
      * Reputation delta when the user writes one comment many times.
      */
-    const DUPLICATING_COMMENT = -6;
+    const DUPLICATING_COMMENT = -2;
 
     private function __construct() {}
 

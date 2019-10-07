@@ -172,9 +172,9 @@ class CommentChangeHandler {
 
             unset($data);
 
-            if ($thisAuthorMessageCount > 2) {
+            if ($thisAuthorMessageCount >= 1) {
 
-                // the user has written a duplicating comment the third time
+                // the user has written a duplicating comment the second
 
                 VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
