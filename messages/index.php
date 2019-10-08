@@ -179,7 +179,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 // now delete the comments from the database
 
-                $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
+                $query = $db->query('UPDATE `messages` SET `category` = 3 WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
 
                 ?>
                 <div class="alert alert-success" role="alert">
@@ -303,7 +303,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
 
                 // now delete the comments from the database
 
-                $query = $db->query('DELETE FROM `messages` WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
+                $query = $db->query('UPDATE `messages` SET `category` = 3 WHERE `messages`.`id` IN('.$gluedMessages.') LIMIT 50;');
 
                 ?>
                 <div class="alert alert-success" role="alert">

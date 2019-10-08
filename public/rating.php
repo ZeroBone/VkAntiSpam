@@ -1,6 +1,7 @@
 <?php
 
-use VkAntiSpam\Utils\StringUtils;use VkAntiSpam\VkAntiSpam;
+use VkAntiSpam\Utils\StringUtils;
+use VkAntiSpam\VkAntiSpam;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 
@@ -96,7 +97,7 @@ $vas = VkAntiSpam::web();
 
                                             $reputationPercent = ceil((float)$row['reputation'] / $maxReputation * 100);
 
-                                            $reputationColor = $reputationPercent >= 75 ? 'green' : 'yellow';
+                                            $reputationColor = $reputationPercent >= 50 ? 'green' : 'yellow';
 
                                             ?>
                                             <tr>

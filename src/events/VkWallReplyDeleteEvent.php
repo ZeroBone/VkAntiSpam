@@ -19,9 +19,10 @@ class VkWallReplyDeleteEvent extends VkEvent {
 
         $db = VkAntiSpam::get()->getDatabaseConnection();
 
-        $query = $db->prepare('DELETE FROM `messages` WHERE `id` = ?;');
+        $query = $db->prepare('UPDATE `messages` SET `category` = ? WHERE `id` = ?;');
 
         $query->execute([
+            TextClassifier::CATEGORY_DELETED,
             $messageId
         ]);
 

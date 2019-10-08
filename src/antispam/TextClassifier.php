@@ -13,6 +13,8 @@ class TextClassifier {
 
     const CATEGORY_SPAM = 2;
 
+    const CATEGORY_DELETED = 3;
+
     /**
      * AntiSpamSystem constructor;
      */
