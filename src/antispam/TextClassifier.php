@@ -2,6 +2,7 @@
 
 namespace VkAntiSpam\System;
 
+use VkAntiSpam\Utils\StringUtils;
 use VkAntiSpam\VkAntiSpam;
 use PDO;
 
@@ -46,6 +47,8 @@ class TextClassifier {
     }
 
     public function learn($text, $category) {
+
+        $text = static::cleanText($text);
 
         if (static::textInvalid($text)) {
             return false;
@@ -166,6 +169,8 @@ class TextClassifier {
 
     public function classify($text) {
 
+        $text = static::cleanText($text);
+
         if (static::textInvalid($text)) {
             return static::CATEGORY_INVALID;
         }
@@ -173,6 +178,12 @@ class TextClassifier {
         $keywords = $this->tokenize($text);
 
         return $this->analyze($keywords);
+
+    }
+
+    public static function cleanText($text) {
+
+        return StringUtils::removeEmoji($text);
 
     }
 
