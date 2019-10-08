@@ -130,7 +130,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                             <tbody>
                             <?php
 
-                            $query = $db->query('SELECT `id`, `date`, `message`, `category` FROM `messages` ORDER BY `id` DESC LIMIT 20;');
+                            $query = $db->query('SELECT `id`, `date`, `message`, `category` FROM `messages` WHERE `category` != 3 ORDER BY `id` DESC LIMIT 20;');
 
                             while (($currentRow = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
 
@@ -186,7 +186,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                                         // each columns data
                                         ['comments', <?= implode(',', $commentCountValues); ?>],
                                     ],
-                                    type: 'area',
+                                    type: 'area-spline',
                                     groups: [
                                         [ 'comments', 'comments_time', 'data3']
                                     ],
