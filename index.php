@@ -124,7 +124,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                                 <th>#</th>
                                 <th class="d-none d-sm-table-cell">Дата</th>
                                 <th>Сообщение</th>
-                                <th class="d-none d-md-table-cell">Статус</th>
+                                <th>Статус</th>
                             </tr>
                             </thead>
                             <tbody>

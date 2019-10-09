@@ -71,7 +71,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                             ?>
                             <tr>
                                 <td><?= $currentRow['name']; ?></td>
-                                <td class="d-none d-md-table-cell">
+                                <td>
                                     <a class="btn btn-success btn-sm" href="/settings/group/general?g=<?= $currentRow['vkGroupId']; ?>">Общие настройки</a>
                                     <a class="btn btn-secondary btn-sm" href="https://vk.com/public<?= $currentRow['vkGroupId']; ?>" target="_blank">Перейти в группу</a>
                                 </td>
@@ -98,7 +98,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                     <thead>
                     <tr>
                         <th>Группа</th>
-                        <th class="d-none d-md-table-cell">Действия</th>
+                        <th>Действия</th>
                     </tr>
                     </thead>
                     <tbody>

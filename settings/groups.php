@@ -197,7 +197,6 @@ require $_SERVER['DOCUMENT_ROOT'] . '/src/structure/header.php';
                                     <td class="d-none d-md-table-cell">
                                         <a class="btn btn-secondary btn-sm" href="https://vk.com/public<?= $currentRow['vkId']; ?>" target="_blank">Перейти</a>
                                         <a class="btn btn-success btn-sm" href="https://vk.com/id<?= $currentRow['adminVkId']; ?>" target="_blank">Администратор</a>
-                                        <a class="btn btn-danger btn-sm" href="javascript:alert('В разработке...')">Удалить</a>
                                     </td>
                                 </tr>
                                 <?php
