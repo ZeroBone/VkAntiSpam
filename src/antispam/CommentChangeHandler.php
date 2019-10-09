@@ -138,6 +138,22 @@ class CommentChangeHandler {
 
                 // too many messages
 
+                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
+
+                $query->execute([
+                    (int)$vkGroup['vkId'], // groupId
+                    1, // type
+                    $commentId, // vkId
+                    $commentAuthor, // author
+                    $commentText, // message
+                    abs(crc32($commentText)), // message hash
+                    time(), // date
+                    isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
+                    isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
+                    (int)$this->object['post_id'], // vk context
+                    TextClassifier::CATEGORY_DELETED
+                ]);
+
                 VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
                 return;
@@ -174,6 +190,24 @@ class CommentChangeHandler {
 
             if ($thisAuthorMessageCount >= 1) {
 
+                // insert comment as deleted in database
+
+                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
+
+                $query->execute([
+                    (int)$vkGroup['vkId'], // groupId
+                    1, // type
+                    $commentId, // vkId
+                    $commentAuthor, // author
+                    $commentText, // message
+                    abs(crc32($commentText)), // message hash
+                    time(), // date
+                    isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
+                    isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
+                    (int)$this->object['post_id'], // vk context
+                    TextClassifier::CATEGORY_DELETED
+                ]);
+
                 // the user has written a duplicating comment the second
 
                 VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
@@ -192,6 +226,24 @@ class CommentChangeHandler {
             }
 
             if ($uniqueAuthorMessageCount > 10 || $totalMessageCount > 15) {
+
+                // insert comment as deleted in database
+
+                $query = $db->prepare('INSERT INTO `messages` (`groupId`, `type`, `vkId`, `author`, `message`, `messageHash`, `date`, `replyToUser`, `replyToMessage`, `vkContext`, `category`) VALUES (?,?,?,?,?,?,?,?,?,?,?);');
+
+                $query->execute([
+                    (int)$vkGroup['vkId'], // groupId
+                    1, // type
+                    $commentId, // vkId
+                    $commentAuthor, // author
+                    $commentText, // message
+                    abs(crc32($commentText)), // message hash
+                    time(), // date
+                    isset($this->object['reply_to_user']) ? (int)$this->object['reply_to_user'] : 0,
+                    isset($this->object['reply_to_comment']) ? (int)$this->object['reply_to_comment'] : 0,
+                    (int)$this->object['post_id'], // vk context
+                    TextClassifier::CATEGORY_DELETED
+                ]);
 
                 VkUtils::deleteGroupComment($vkGroup['adminVkToken'], $vkGroup['vkId'], $commentId);
 
@@ -312,7 +364,8 @@ class CommentChangeHandler {
                     $commentAuthor,
                     (int)$vkGroup['spamBanDuration'],
                     VkUtils::BAN_REASON_SPAM,
-                    'Автоматический бан #' . $banId . '.'
+                    'Автоматический бан #' . $banId . '.',
+                    1
                 );
 
             }
