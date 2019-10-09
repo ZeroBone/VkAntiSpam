@@ -173,7 +173,18 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
 
                         }
 
+                        $filteredCommentCountValues = [];
+
+                        $query = $db->query('SELECT FLOOR(`date` / 3600) * 3600 AS `ts`, COUNT(1) AS `count` FROM `messages` WHERE `category` = 2 OR `category` = 3 GROUP BY `ts` ORDER BY `ts` DESC LIMIT 24;');
+
+                        while (($result = $query->fetch(PDO::FETCH_ASSOC)) !== false) {
+
+                            $filteredCommentCountValues[] = (int)$result['count'];
+
+                        }
+
                         $commentCountValues = array_reverse($commentCountValues);
+                        $filteredCommentCountValues = array_reverse($filteredCommentCountValues);
                         // $commentTimeValues = array_reverse($commentTimeValues);
 
                     ?>
@@ -185,17 +196,20 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                                     columns: [
                                         // each columns data
                                         ['comments', <?= implode(',', $commentCountValues); ?>],
+                                        ['filteredComments', <?= implode(',', $filteredCommentCountValues); ?>],
                                     ],
                                     type: 'area-spline',
                                     groups: [
-                                        [ 'comments', 'comments_time', 'data3']
+                                        ['comments']
                                     ],
                                     colors: {
-                                        'comments': tabler.colors["blue"]
+                                        'comments': tabler.colors["blue"],
+                                        'filteredComments': tabler.colors["pink"],
                                     },
                                     names: {
                                         // name of each serie
-                                        'comments': "Количество сообщений",
+                                        'comments': "Сообщений",
+                                        'filteredComments': "Отфильтровано сообщений",
                                         // 'comments_time': "Время",
                                     }
                                 },
