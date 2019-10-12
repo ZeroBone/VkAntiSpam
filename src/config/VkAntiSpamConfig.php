@@ -24,6 +24,8 @@ class VkAntiSpamConfig {
 
     public $recaptchaPrivateKey;
 
+    public $linkAccessSecretKey;
+
     public function __construct() {}
 
     /**
@@ -95,6 +97,15 @@ class VkAntiSpamConfig {
      */
     public function setRecaptchaPrivateKey($recaptchaPrivateKey) {
         $this->recaptchaPrivateKey = $recaptchaPrivateKey;
+        return $this;
+    }
+
+    /**
+     * @param mixed $banAccessSecretKey
+     * @return VkAntiSpamConfig
+     */
+    public function setLinkAccessSecretKey($banAccessSecretKey) {
+        $this->linkAccessSecretKey = $banAccessSecretKey;
         return $this;
     }
 

@@ -298,27 +298,36 @@ class CommentChangeHandler {
 
                 // reputation change
 
+                $reputationChange = ($category === TextClassifier::CATEGORY_HAM) ? Reputation::CLASSIFIER_HAM : Reputation::CLASSIFIER_SPAM;
+
+                // TODO: check group settings
+                if (true && TextClassifier::isTextCensored($commentText)) {
+
+                    $reputationChange += Reputation::CENSORED;
+
+                }
+
                 $query = $db->prepare('UPDATE `vkUsers` SET `reputation` = `reputation` + ? WHERE `vkId` = ? LIMIT 1;');
 
                 $query->execute([
-                    ($category === TextClassifier::CATEGORY_HAM) ? Reputation::CLASSIFIER_HAM : Reputation::CLASSIFIER_SPAM, // reputation change
+                    $reputationChange,
                     $commentAuthor
                 ]);
 
             }
             else {
 
-                $query = $db->prepare('INSERT INTO `vkUsers` (vkId, `date`, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?,?);');
+                $query = $db->prepare('INSERT INTO `vkUsers` (`vkId`, `date`, firstName, lastName, closedProfile, photo_50, photo_100, photo_200, photo_max) VALUES (?,?,?,?,?,?,?,?,?);');
                 $query->execute([
                     $commentAuthor,
                     time(),
                     $vkResponse['first_name'],
                     $vkResponse['last_name'],
                     $vkResponse['is_closed'] ? 1 : 0,
-                    $vkResponse['photo_50'],
-                    $vkResponse['photo_100'],
-                    $vkResponse['photo_200'],
-                    $vkResponse['photo_max']
+                    (isset($vkResponse['photo_50']) ? (string)$vkResponse['photo_50'] : 'https://vk.com/images/camera_50.png?ava=1'),
+                    (isset($vkResponse['photo_100']) ? (string)$vkResponse['photo_100'] : 'https://vk.com/images/camera_100.png?ava=1'),
+                    (isset($vkResponse['photo_200']) ? (string)$vkResponse['photo_200'] : 'https://vk.com/images/camera_200.png?ava=1'),
+                    (isset($vkResponse['photo_max']) ? (string)$vkResponse['photo_max'] : 'https://vk.com/images/camera_200.png?ava=1')
                 ]);
 
             }

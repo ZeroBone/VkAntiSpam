@@ -221,4 +221,10 @@ class TextClassifier {
 
     }
 
+    public static function isTextCensored($text) {
+
+        return !ObsceceCensor::isAllowed($text);
+
+    }
+
 }

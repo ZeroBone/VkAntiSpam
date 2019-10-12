@@ -51,26 +51,35 @@ $vas = VkAntiSpam::web();
                 <div class="col col-lg-8 col-md-10 col-sm-12 mx-auto">
                     <?php
 
+                    // echo http_build_query(BanAccessSecurity::constructHttpQueryArray(520463843, 135, 1570878032));
+
                     $ban = BanAccessSecurity::getBan();
 
                     if ($ban !== null) {
 
                         ?>
-                        <form class="card" action="/public/banned/categorize" method="post">
-                            <input type="hidden" name="<?= BanAccessSecurity::USER_ID_KEY ?>" value="<?= $_REQUEST[BanAccessSecurity::USER_ID_KEY]; ?>">
-                            <input type="hidden" name="<?= BanAccessSecurity::BAN_ID_KEY ?>" value="<?= $_REQUEST[BanAccessSecurity::BAN_ID_KEY]; ?>">
-                            <input type="hidden" name="<?= BanAccessSecurity::BAN_TIME_KEY ?>" value="<?= $_REQUEST[BanAccessSecurity::BAN_TIME_KEY]; ?>">
-                            <input type="hidden" name="<?= BanAccessSecurity::SIGNATURE_KEY ?>" value="<?= $_REQUEST[BanAccessSecurity::SIGNATURE_KEY]; ?>">
+                        <form class="card" action="" method="post">
                             <div class="card-status bg-danger"></div>
                             <div class="card-body p-6">
-                                <div class="card-title">Разблокировка пользователей - шаг 1</div>
-                                <p class="text-muted">
-                                    В нашей группе работает система автоматической досрочной разблокировки добросовестных
-                                    пользователей, которые случайно, по незнанию или по ошибке были заблокированы.
+                                <div class="card-title">Разблокировка пользователей - шаг 2</div>
+                                <?php
+
+                                $db = $vas->getDatabaseConnection();
+
+                                // $query = $db->prepare();
+
+                                ?>
+                                <p>
+                                    dafedfidhfskjfdhkj
                                 </p>
-                                <p>Нажмите кнопку &quot;продолжить&quot;, чтобы перейти к следующему шагу.</p>
+                                <div class="alert alert-warning">
+                                    <strong>Внимание!</strong> Нажимая на кнопку &quot;Я был заблокирован по ошибке&quot; Вы подтверждаете,
+                                    что Вы ознакомились с правилами соответствующей группы и уверены в том, что блокировка ошибочная.<br>
+                                    За ложное сообщение об ошибочной блокировке Вы можете быть заблокированы <b>навсегда</b>.
+                                </div>
                                 <div class="form-footer">
-                                    <button type="submit" class="btn btn-primary btn-block">Продолжить</button>
+                                    <button type="submit" class="btn btn-primary btn-block">Я согласен с блокировкой</button>
+                                    <button type="submit" class="btn btn-secondary btn-block">Я был заблокирован по ошибке</button>
                                 </div>
                             </div>
                         </form>

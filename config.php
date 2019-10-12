@@ -15,6 +15,7 @@ return (new VkAntiSpamConfig())
     ->dbName('antispam')
     ->dbUser('root')
     ->dbPassword('')
-    ->accountConfig(new AccountConfig('<128-byte secret key here>'))
+    ->accountConfig(new AccountConfig('<128-byte unique secret key here>'))
     ->setRecaptchaPublicKey('<public key>')
-    ->setRecaptchaPrivateKey('<secret key>');
+    ->setRecaptchaPrivateKey('<secret key>')
+    ->setLinkAccessSecretKey('<128-byte unique secret key here>');

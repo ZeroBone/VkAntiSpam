@@ -40,6 +40,11 @@ class Reputation {
      */
     const DUPLICATING_COMMENT = -2;
 
+    /**
+     * Reputation delta when the user writes bad words.
+     */
+    const CENSORED = -3 - self::ADMIN_HAM;
+
     private function __construct() {}
 
 }

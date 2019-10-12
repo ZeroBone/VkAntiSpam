@@ -9,6 +9,7 @@ define('SECURITY_CANARY', true);
 require $_SERVER['DOCUMENT_ROOT'] . '/src/VkAntiSpam.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/account/Account.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/account/GroupRole.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/obscene/ObsceceCensor.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/BanAccessSecurity.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/CommentChangeHandler.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/src/antispam/Reputation.php';

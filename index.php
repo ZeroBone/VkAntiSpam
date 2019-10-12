@@ -97,7 +97,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                 <div class="card">
                     <div class="card-body p-3 text-center">
                         <div class="h1 m-0"><?= number_format($wordsCount, 0, '.', ' ') ?></div>
-                        <div class="text-muted mb-4">Слов проанализировано</div>
+                        <div class="text-muted mb-4">Общий словарный запас</div>
                     </div>
                 </div>
             </div>
