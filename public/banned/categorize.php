@@ -1,6 +1,6 @@
 <?php
 
-use VkAntiSpam\System\BanAccessSecurity;use VkAntiSpam\VkAntiSpam;
+use VkAntiSpam\System\BanAccessSecurity;use VkAntiSpam\Utils\StringUtils;use VkAntiSpam\VkAntiSpam;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/src/autoload.php';
 
@@ -55,6 +55,36 @@ $vas = VkAntiSpam::web();
 
                     $ban = BanAccessSecurity::getBan();
 
+                    $banData = null;
+
+                    if ($ban !== null) {
+
+                        $db = $vas->getDatabaseConnection();
+
+                        $query = $db->prepare('
+                            SELECT 
+                                `messages`.`id` AS `messageId`,
+                                `messages`.`groupId` AS `messageGroupId`,
+                                `messages`.`author` AS `messageAuthor`,
+                                `messages`.`date` AS `messageDate`,
+                                `messages`.`message` AS `messageText`,
+                                `bans`.*
+                            FROM `bans`, `messages` 
+                            WHERE `bans`.`id` = ? AND `bans`.`message` = `messages`.`id` LIMIT 1;
+                        ');
+
+                        $query->execute([
+                            $ban->banId
+                        ]);
+
+                        $banData = $query->fetch(PDO::FETCH_ASSOC);
+
+                        if (!isset($banData['id'])) {
+                            $ban = null;
+                        }
+
+                    }
+
                     if ($ban !== null) {
 
                         ?>
@@ -62,24 +92,28 @@ $vas = VkAntiSpam::web();
                             <div class="card-status bg-danger"></div>
                             <div class="card-body p-6">
                                 <div class="card-title">Разблокировка пользователей - шаг 2</div>
-                                <?php
-
-                                $db = $vas->getDatabaseConnection();
-
-                                // $query = $db->prepare();
-
-                                ?>
-                                <p>
-                                    dafedfidhfskjfdhkj
-                                </p>
+                                <div class="text-wrap">
+                                    <p>
+                                        Вы были заблокированы <?= date('d.m.Y H:i:s', (int)$banData['date']); ?> за то,
+                                        что <?= date('d.m.Y H:i:s', (int)$banData['messageDate']); ?> написали сообщение:
+                                    </p>
+                                    <div class="example">
+                                        <?= StringUtils::escapeHTML($banData['messageText']); ?>
+                                    </div>
+                                    <p>
+                                        в <a target="_blank" href="https://vk.com/public<?= $banData['messageGroupId']; ?>">этой группе</a>.
+                                        Идентификатор бана: <?= $banData['id'] ?>
+                                    </p>
+                                </div>
+                                <hr>
                                 <div class="alert alert-warning">
-                                    <strong>Внимание!</strong> Нажимая на кнопку &quot;Я был заблокирован по ошибке&quot; Вы подтверждаете,
-                                    что Вы ознакомились с правилами соответствующей группы и уверены в том, что блокировка ошибочная.<br>
+                                    <strong>Внимание!</strong> Нажимая на кнопку &quot;Я был заблокирован по ошибке&quot;, Вы подтверждаете,
+                                    что Вы ознакомились с правилами <a target="_blank" href="https://vk.com/public<?= $banData['messageGroupId']; ?>">соответствующей группы</a> и уверены в том, что блокировка ошибочная.<br>
                                     За ложное сообщение об ошибочной блокировке Вы можете быть заблокированы <b>навсегда</b>.
                                 </div>
                                 <div class="form-footer">
-                                    <button type="submit" class="btn btn-primary btn-block">Я согласен с блокировкой</button>
-                                    <button type="submit" class="btn btn-secondary btn-block">Я был заблокирован по ошибке</button>
+                                    <button type="submit" name="agree" value="1" class="btn btn-primary btn-block">Я согласен с блокировкой</button>
+                                    <button type="submit" name="agree" value="0" class="btn btn-secondary btn-block">Я был заблокирован по ошибке</button>
                                 </div>
                             </div>
                         </form>

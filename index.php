@@ -97,7 +97,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                 <div class="card">
                     <div class="card-body p-3 text-center">
                         <div class="h1 m-0"><?= number_format($wordsCount, 0, '.', ' ') ?></div>
-                        <div class="text-muted mb-4">Общий словарный запас</div>
+                        <div class="text-muted mb-4">Словарный запас классификатора</div>
                     </div>
                 </div>
             </div>
@@ -105,6 +105,7 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                 <div class="card">
                     <div class="card-body p-3 text-center">
                         <div class="h1 m-0"><?= number_format($vkUsersCount, 0, '.', ' ') ?></div>
+
                         <div class="text-muted mb-4">Уникальных пользователей</div>
                     </div>
                 </div>
@@ -160,6 +161,40 @@ SELECT COUNT(*) AS `result` FROM `vkUsers`;
                 </div>
                 <script>
                     <?php
+
+                        /*
+                            SELECT
+                                `A`.`ts` AS `ats`,
+                                `B`.`ts` AS `bts`,
+                                `totalCount`,
+                                `filteredCount`
+                            FROM
+                            (
+                                SELECT
+                                    FLOOR(`date` / 3600) * 3600 AS `ts`,
+                                    COUNT(1) AS `totalCount`
+                                FROM `messages`
+                                GROUP BY `ts`
+                                ORDER BY `ts`
+                                DESC
+                                LIMIT 24
+                            ) AS `A`
+                            JOIN
+                            (
+                                SELECT
+                                    FLOOR(`date` / 3600) * 3600 AS `ts`,
+                                    COUNT(1) AS `filteredCount`
+                                FROM `messages`
+                                WHERE
+                                    `category` = 2 OR
+                                    `category` = 3
+                                GROUP BY `ts`
+                                ORDER BY `ts`
+                                DESC
+                                LIMIT 24
+                            ) AS `B`
+                            ON `A`.`ts` = `B`.`ts`
+                         */
 
                         $commentCountValues = [];
                         // $commentTimeValues = [];

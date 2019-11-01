@@ -68,6 +68,12 @@ class BanAccessSecurity {
 
     }
 
+    public function verify($userVkId) {
+
+        return $this->userVkId === $userVkId;
+
+    }
+
     public static function constructHttpQueryArray($userVkId, $banId, $banTime) {
 
         $signature = static::hashBan($userVkId, $banId, $banTime);
